@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const Container = styled.header`
   background-color: ${(props) => props.theme["orange-light"]};
   width: 100%;
-  height: 15rem;
+  height: 18rem;
 `;
 
 export const Content = styled.div`
@@ -22,6 +22,13 @@ export const Logo = styled.div`
   }
 `;
 
+export const ContainerButtons = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+`;
+
 export const Button = styled.button`
   font-size: 1rem;
   color: ${(props) => props.theme.white};
@@ -34,7 +41,7 @@ export const Button = styled.button`
 
   transition: filter 0.3s;
 
-  &:hover{
+  &:hover {
     filter: opacity(0.8);
   }
 `;

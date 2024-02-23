@@ -13,6 +13,10 @@ body{
   -webkit-font-smoothing: antialiased;
 }
 
+:focus{
+  outline: 0;
+}
+
 body, input, textarea, button{
   font: 400 1rem 'Montserrat', sans-serif; 
 }

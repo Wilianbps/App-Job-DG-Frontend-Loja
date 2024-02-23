@@ -58,11 +58,11 @@ export const Tag = styled.span<ITag>`
   width: 5px;
   height: 100%;
   background-color: ${(props) =>
-    props.variant == "usuários"
+    props.variant == "USUARIO_DGCS"
       ? props.theme.blue
-      : props.variant == "entrada loja"
+      : props.variant == "SERVIDORES_DGCS"
       ? props.theme.pink
-      : props.variant == "saída loja" && props.theme.orange};
+      : props.variant == "AUX_ENTRADA" && props.theme.orange};
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
 `;

@@ -28,6 +28,9 @@ export const defaultTheme = {
   "red-500": "#AB222E",
   "red-700": "#7A1921",
 
+  'base-button': '#e6e5e5',
+  'base-input': '#ededed',
+
   purple: "#7629CC",
   "purple-light": "#8e5ee8",
   orange: "#E39144",
@@ -42,5 +45,5 @@ export const defaultTheme = {
 
   "base-profile": "#0b1b2b",
 
-  "base-input": "#040f1a",
+
 } as const;

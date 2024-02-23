@@ -1,13 +1,19 @@
 import { ThemeProvider } from "styled-components";
 import { defaultTheme } from "./themes/default";
 import { GlobalStyle } from "./styles/global";
-import { Dashboard } from "./pages/Dashboard";
+import { JobsProvider } from "./contexts/JobsContext";
+import { BrowserRouter } from "react-router-dom";
+import { Router } from "./Router";
 
 function App() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <GlobalStyle />
-      <Dashboard />
+      <JobsProvider>
+        <BrowserRouter>
+          <Router />
+        </BrowserRouter>
+      </JobsProvider>
     </ThemeProvider>
   );
 }
