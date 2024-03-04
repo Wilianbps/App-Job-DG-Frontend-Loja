@@ -363,7 +363,7 @@ export function JobsProvider({ children }: JobsProviderProps) {
     }
   }, [idJobActive, newDate, searchUsersOnStage]);
 
-  useEffect(() => {
+ /*  useEffect(() => {
     if (connection) {
       const checkLastApiJobsUserCallTime = async () => {
         const lastAPICallTime = JSON.parse(
@@ -396,7 +396,7 @@ export function JobsProvider({ children }: JobsProviderProps) {
 
       return () => clearInterval(interval);
     }
-  }, [connection]);
+  }, [connection]); */
 
   async function getConfigEnvironmentLocal() {
     const response = await apiLoja.get("form-data-config");
