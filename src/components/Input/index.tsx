@@ -1,10 +1,11 @@
-import { forwardRef } from 'react'
-import { InputWrapper, InputStyledContainer, InputStyled } from './styles'
+import { forwardRef } from "react";
+import { InputWrapper, InputStyledContainer, InputStyled } from "./styles";
 interface InputProps {
-  placeholder: string
-  type: string
-  className: string
-  error?: string
+  placeholder: string;
+  type: string;
+  value?: string;
+  className: string;
+  error?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -16,8 +17,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </InputStyledContainer>
         {error && <p>{error}</p>}
       </InputWrapper>
-    )
-  },
-)
+    );
+  }
+);
 
-Input.displayName = 'Input'
+Input.displayName = "Input";

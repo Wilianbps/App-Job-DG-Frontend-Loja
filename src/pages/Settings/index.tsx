@@ -8,6 +8,10 @@ import {
 import * as zod from "zod";
 import { useForm } from "react-hook-form";
 import { Input } from "../../components/Input";
+import { useContext, useEffect } from "react";
+import { JobsContext } from "../../contexts/JobsContext";
+import { CircularProgress } from "@mui/material";
+import { SnackbarMUI } from "../../components/AlertSnackbar";
 
 const localEnvironmentConfigurationFormSchema = zod.object({
   server: zod.string().min(8, "Informe o servidor sql"),
@@ -17,8 +21,8 @@ const localEnvironmentConfigurationFormSchema = zod.object({
 });
 
 const remoteEnvironmentConfigurationFormSchema = zod.object({
+  baseURL: zod.string().min(8, "Informe o servidor da retaguarda"),
   server: zod.string().min(8, "Informe o servidor sql"),
-  serverDatabase: zod.string().min(8, "Informe o servidor sql"),
   database: zod.string().min(8, "Informe o banco de dados"),
   user: zod.string().min(3, "Informe o usuário do banco de dados"),
   password: zod.string().min(1, "Informe a senha do banco de dados"),
@@ -33,6 +37,17 @@ export type remoteEnvironmentConfigurationFormProps = zod.infer<
 >;
 
 export function Settings() {
+  const {
+    configDatabase,
+    formDataLocal,
+    formDataRemote,
+    loadingTestConnectionLocalEnvironment,
+    loadingTestConnectionRemoteEnvironment,
+    snackbarTestConnectionLocalEnvironment,
+    snackbarTestConnectionRemoteEnvironment,
+    updateStateSnackbarTestConnectionLocalEnvironment,
+  } = useContext(JobsContext);
+
   const localEnvironmentConfigurationForm =
     useForm<localEnvironmentConfigurationFormProps>({
       resolver: zodResolver(localEnvironmentConfigurationFormSchema),
@@ -47,12 +62,14 @@ export function Settings() {
     handleSubmit: handleSubmitLocalEnvironment,
     register: registerLocalEnvironment,
     formState: formStateLocalEnvironment,
+    setValue: setValueLocalEnvironment,
   } = localEnvironmentConfigurationForm;
 
   const {
     handleSubmit: handleSubmitRemoteEnvironment,
     register: registerRemoteEnvironment,
     formState: formStateRemoteEnvironment,
+    setValue: setValueRemoteEnvironment,
   } = remoteEnvironmentConfigurationForm;
 
   const { errors: errorLocalEnvironment } = formStateLocalEnvironment;
@@ -62,14 +79,30 @@ export function Settings() {
   function handleSubmitFormLocalEnvironment(
     data: localEnvironmentConfigurationFormProps
   ) {
-    console.log("formLocal", data);
+    configDatabase(data, "local");
   }
 
   function handleSubmitFormRemoteEnvironment(
     data: remoteEnvironmentConfigurationFormProps
   ) {
-    console.log("formRemoto", data);
+    configDatabase(data, "remote");
   }
+
+  useEffect(() => {
+    setValueLocalEnvironment("server", formDataLocal.server);
+    setValueLocalEnvironment("database", formDataLocal.database);
+    setValueLocalEnvironment("user", formDataLocal.user);
+    setValueLocalEnvironment("password", formDataLocal.password);
+  }, [setValueLocalEnvironment, formDataLocal]);
+
+  useEffect(() => {
+    const baseURLRemote = localStorage.getItem("baseURL:local")!;
+    setValueRemoteEnvironment("baseURL", baseURLRemote);
+    setValueRemoteEnvironment("server", formDataRemote.server);
+    setValueRemoteEnvironment("database", formDataRemote.database);
+    setValueRemoteEnvironment("user", formDataRemote.user);
+    setValueRemoteEnvironment("password", formDataRemote.password);
+  }, [setValueRemoteEnvironment, formDataRemote]);
 
   return (
     <Container>
@@ -103,13 +136,45 @@ export function Settings() {
           />
           <Input
             placeholder="Senha do Banco de Dados"
-            type="text"
+            type="password"
             className="password"
             {...registerLocalEnvironment("password")}
             error={errorLocalEnvironment.password?.message}
           />
-          <Button type="submit">Testar</Button>
+
+          {loadingTestConnectionLocalEnvironment ? (
+            <Button type="submit">
+              <CircularProgress color="inherit" size={30} />
+            </Button>
+          ) : (
+            <Button type="submit">Testar Conexão</Button>
+          )}
         </form>
+        {snackbarTestConnectionLocalEnvironment.status === true &&
+        snackbarTestConnectionLocalEnvironment.type === "success" &&
+        (
+          <SnackbarMUI
+            onUpdateStateSnackbarTestConnectionLocalEnvironment={
+              updateStateSnackbarTestConnectionLocalEnvironment
+            }
+            openSnackbar={snackbarTestConnectionLocalEnvironment.status}
+            status="success"
+            message={snackbarTestConnectionLocalEnvironment.message}
+          />
+        )}
+
+      {snackbarTestConnectionLocalEnvironment.status === true &&
+        snackbarTestConnectionLocalEnvironment.type === "error" &&
+         (
+          <SnackbarMUI
+            onUpdateStateSnackbarTestConnectionLocalEnvironment={
+              updateStateSnackbarTestConnectionLocalEnvironment
+            }
+            openSnackbar={snackbarTestConnectionLocalEnvironment.status}
+            status="error"
+            message={snackbarTestConnectionLocalEnvironment.message}
+          />
+        )}
       </ContentLocalEnvironment>
 
       <ContentRemoteEnvironment>
@@ -122,16 +187,16 @@ export function Settings() {
           <Input
             placeholder="Nome do Servidor de Destino"
             type="text"
-            className="server"
-            {...registerRemoteEnvironment("server")}
-            error={errorRemoteEnvironment.server?.message}
+            className="baseURL"
+            {...registerRemoteEnvironment("baseURL")}
+            error={errorRemoteEnvironment.baseURL?.message}
           />
           <Input
             placeholder="Nome do Servidor do Banco de Dados"
             type="text"
-            className="serverDatabase"
-            {...registerRemoteEnvironment("serverDatabase")}
-            error={errorRemoteEnvironment.serverDatabase?.message}
+            className="server"
+            {...registerRemoteEnvironment("server")}
+            error={errorRemoteEnvironment.server?.message}
           />
           <Input
             placeholder="Nome do Banco de Dados"
@@ -149,14 +214,48 @@ export function Settings() {
           />
           <Input
             placeholder="Senha do Banco de Dados"
-            type="text"
+            type="password"
             className="password"
             {...registerRemoteEnvironment("password")}
             error={errorRemoteEnvironment.password?.message}
           />
-          <Button type="submit">Testar</Button>
+          {loadingTestConnectionRemoteEnvironment ? (
+            <Button type="submit">
+              <CircularProgress color="inherit" size={30} />
+            </Button>
+          ) : (
+            <Button type="submit">Testar Conexão</Button>
+          )}
         </form>
+
+        {snackbarTestConnectionRemoteEnvironment.status === true &&
+        snackbarTestConnectionRemoteEnvironment.type === "success" &&
+        (
+          <SnackbarMUI
+            onUpdateStateSnackbarTestConnectionLocalEnvironment={
+              updateStateSnackbarTestConnectionLocalEnvironment
+            }
+            openSnackbar={snackbarTestConnectionRemoteEnvironment.status}
+            status="success"
+            message={snackbarTestConnectionRemoteEnvironment.message}
+          />
+        )}
+
+      {snackbarTestConnectionRemoteEnvironment.status === true &&
+        snackbarTestConnectionRemoteEnvironment.type === "error" &&
+         (
+          <SnackbarMUI
+            onUpdateStateSnackbarTestConnectionLocalEnvironment={
+              updateStateSnackbarTestConnectionLocalEnvironment
+            }
+            openSnackbar={snackbarTestConnectionRemoteEnvironment.status}
+            status="error"
+            message={snackbarTestConnectionRemoteEnvironment.message}
+          />
+        )}
       </ContentRemoteEnvironment>
+
+      
     </Container>
   );
 }

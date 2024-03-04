@@ -27,16 +27,12 @@ interface IJob {
 }
 
 export function Dashboard() {
-  const { jobs, selectedDate, handleSelectDate } = useContext(JobsContext);
+  const { jobs, selectedDate, handleSelectDate, connection } =
+    useContext(JobsContext);
 
   const [filteredJobs, setFilteredJobs] = useState<IJob[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
-
-  /*   async function handleSelectDate(date: Date | unknown) {
-    setSelectedDate(date);
-    loadDateSelected(selectedDate);
-  } */
 
   function handleNewSearchChange(event: ChangeEvent<HTMLTextAreaElement>) {
     setSearch(event.target.value);
@@ -66,86 +62,92 @@ export function Dashboard() {
   return (
     <>
       <Card />
-      <ContainerMain>
-        <ContainerSearch>
-          <DatePickerMUI
-            selectDate={selectedDate}
-            onSelectDate={handleSelectDate}
-          />
-          <InputMUI value={search} onChange={handleNewSearchChange} />
-          <ButtonSearch type="submit" onClick={handleSearch} disabled={!search}>
-            {loading ? (
-              <Box
-                sx={{
-                  color: "#fff",
-                }}
-              >
-                <CircularProgress color="inherit" size={30} />
-              </Box>
-            ) : (
-              "Buscar"
-            )}
-          </ButtonSearch>
-        </ContainerSearch>
+      {connection && (
+        <ContainerMain>
+          <ContainerSearch>
+            <DatePickerMUI
+              selectDate={selectedDate}
+              onSelectDate={handleSelectDate}
+            />
+            <InputMUI value={search} onChange={handleNewSearchChange} />
+            <ButtonSearch
+              type="submit"
+              onClick={handleSearch}
+              disabled={!search}
+            >
+              {loading ? (
+                <Box
+                  sx={{
+                    color: "#fff",
+                  }}
+                >
+                  <CircularProgress color="inherit" size={30} />
+                </Box>
+              ) : (
+                "Buscar"
+              )}
+            </ButtonSearch>
+          </ContainerSearch>
 
-        <ContainerJobsList>
-          <Title>Jobs em execução</Title>
-          <ListJobs>
-            <Thead>
-              <tr>
-                <td></td>
-                <td>nome</td>
-                <td>Início</td>
-                <td>tabela</td>
-                <td>ação</td>
-                <td>status</td>
-              </tr>
-            </Thead>
-            {filteredJobs.map(
-              (job) =>
-                job.status === "em execução" && (
-                  <Job
-                    key={job.id}
-                    name={job.name}
-                    startTime={getHourFromISODate(job.startTime)}
-                    table={job.table}
-                    action={job.action}
-                    status={job.status}
-                  />
-                )
-            )}
-          </ListJobs>
-        </ContainerJobsList>
+          <ContainerJobsList>
+            <Title>Jobs em execução</Title>
+            <ListJobs>
+              <Thead>
+                <tr>
+                  <td></td>
+                  <td>nome</td>
+                  <td>Início</td>
+                  <td>tabela</td>
+                  <td>ação</td>
+                  <td>status</td>
+                </tr>
+              </Thead>
+              {filteredJobs.map(
+                (job) =>
+                  job.status === "em execução" && (
+                    <Job
+                      key={job.id}
+                      name={job.name}
+                      startTime={getHourFromISODate(job.startTime)}
+                      table={job.table}
+                      action={job.action}
+                      status={job.status}
+                    />
+                  )
+              )}
+            </ListJobs>
+          </ContainerJobsList>
 
-        <ContainerJobsList>
-          <Title>Jobs executados</Title>
-          <ListJobs>
-            <Thead>
-              <tr>
-                <td></td>
-                <td>nome</td>
-                <td>Início</td>
-                <td>tabela</td>
-                <td>ação</td>
-                <td>status</td>
-              </tr>
-            </Thead>
-            {filteredJobs.map(
-              (job) =>
-                job.status !== "em execução" && (
-                  <Job
-                    key={job.id}
-                    name={job.name}
-                    startTime={getHourFromISODate(job.startTime)}
-                    table={job.table}
-                    action={job.action}
-                    status={job.status}
-                  />
-                )
-            )}
-          </ListJobs>
-        </ContainerJobsList>
-      </ContainerMain>
+          <ContainerJobsList>
+            <Title>Jobs executados</Title>
+            <ListJobs>
+              <Thead>
+                <tr>
+                  <td></td>
+                  <td>nome</td>
+                  <td>Início</td>
+                  <td>tabela</td>
+                  <td>ação</td>
+                  <td>status</td>
+                </tr>
+              </Thead>
+              {filteredJobs.map(
+                (job) =>
+                  job.status !== "em execução" && (
+                    <Job
+                      key={job.id}
+                      name={job.name}
+                      startTime={getHourFromISODate(job.startTime)}
+                      table={job.table}
+                      action={job.action}
+                      status={job.status}
+                    />
+                  )
+              )}
+            </ListJobs>
+          </ContainerJobsList>
+        </ContainerMain>
+      )}
     </>
   );
 }

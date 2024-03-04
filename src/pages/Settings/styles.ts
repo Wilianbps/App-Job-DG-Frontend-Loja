@@ -34,7 +34,8 @@ export const ContentRemoteEnvironment = styled.div`
 `;
 
 export const Button = styled.button`
-  width: 100px;
+max-width: 190px;
+  min-width: 100px;
   display: flex;
   justify-content: center;
   align-items: center;
