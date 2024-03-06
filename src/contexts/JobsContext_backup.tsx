@@ -9,7 +9,7 @@ import {
 } from "react";
 import { apiLoja, apiRetaguarda } from "../services/axios";
 import axios from "axios";
-
+import { useStartJob } from "./job/hooks/useStartJob";
 
 interface IPropsDatabase {
   baseURL?: string;
@@ -66,7 +66,7 @@ interface JobsProviderProps {
 export const JobsContext = createContext({} as JobsContextType);
 
 export function JobsProvider({ children }: JobsProviderProps) {
-/*   const startJob = useStartJob(); */
+  const startJob = useStartJob();
   const [jobs, setJobs] = useState<IJob[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | unknown>(new Date());
   const [statusConnectionDatabaseLocal, setStatusConnectionDatabaseLocal] =
@@ -274,7 +274,98 @@ export function JobsProvider({ children }: JobsProviderProps) {
     }
   }, [selectedDate]);
 
-  useEffect(() => {
+  const updateStatusJobUser = useCallback(
+    async (status: number) => {
+      const id = localStorage.getItem("jobId:user")!;
+      const statusJob = status === 200 ? "processado" : "cancelado";
+
+      const response = await apiLoja.put(
+        `jobs/users/${id}?status=${statusJob}`
+      );
+
+      setJobs([...jobs, response.data]);
+
+      localStorage.removeItem("jobId:user");
+      idJobActive.current = "";
+    },
+    [jobs]
+  );
+
+  const updateStatusOnStage = useCallback(
+    async (dataUsers: []) => {
+      await apiRetaguarda
+        .post("users", dataUsers)
+        .then((response) => {
+          const status = response.status;
+
+          updateStatusJobUser(status);
+        })
+        .catch((error) => {
+          if (error.response) {
+            const status = error.response.status;
+            updateStatusJobUser(status);
+          }
+        });
+    },
+    [updateStatusJobUser]
+  );
+
+  const addUsersInTableStore = useCallback(
+    async (dataUsers: []) => {
+      await apiLoja
+        .post("users", dataUsers)
+        .then(() => {
+          updateStatusOnStage(dataUsers);
+        })
+        .catch((error) => {
+          if (error.response) {
+            const status = error.response.status;
+            updateStatusJobUser(status);
+          }
+        });
+    },
+    [updateStatusJobUser, updateStatusOnStage]
+  );
+
+  const searchUsersOnStage = useCallback(async () => {
+    const fetchUsers = await apiRetaguarda.get("users", {
+      params: { table: "USUARIO_DGCS", storeCode: "000008" },
+    });
+
+    if (fetchUsers.data.length > 0) {
+      const users = fetchUsers.data;
+      addUsersInTableStore(users);
+    } else {
+      updateStatusJobUser(200);
+    }
+  }, [updateStatusJobUser, addUsersInTableStore]);
+
+  const newDate = new Date().toISOString();
+
+  const startJobTableUser = useCallback(async () => {
+    if (idJobActive.current) {
+      searchUsersOnStage();
+    } else {
+      const newJob = {
+        name: "006",
+        startTime: newDate,
+        table: "USUARIO_DGCS",
+        action: "",
+        status: "em execução",
+      };
+
+      const response = await apiLoja.post("jobs/users", newJob);
+      setJobs((state) => [...state, response.data]);
+
+      idJobActive.current = response.data.id;
+
+      localStorage.setItem("jobId:user", idJobActive.current);
+
+      searchUsersOnStage();
+    }
+  }, [idJobActive, newDate, searchUsersOnStage]);
+
+    useEffect(() => {
     if (connection) {
       const checkLastApiJobsUserCallTime = async () => {
         const lastAPICallTime = JSON.parse(
@@ -288,7 +379,7 @@ export function JobsProvider({ children }: JobsProviderProps) {
           const callFlag = localStorage.getItem("callFlag:jobsUser");
 
           if (!callFlag || callFlag === "false") {
-          /*   await startJob(); */
+            await startJobTableUser();
             localStorage.setItem(
               "lastAPICallTime:jobsUser",
               currentTime.toString()
@@ -297,6 +388,7 @@ export function JobsProvider({ children }: JobsProviderProps) {
           } else {
             localStorage.setItem("callFlag:jobsUser", "false");
           }
+          // Se não houve chamada anterior ou se já passaram 5 minutos desde a última chamada
         }
       };
 
@@ -306,7 +398,7 @@ export function JobsProvider({ children }: JobsProviderProps) {
 
       return () => clearInterval(interval);
     }
-  }, []);
+  }, [connection]); 
 
   async function getConfigEnvironmentLocal() {
     const response = await apiLoja.get("form-data-config");

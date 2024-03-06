@@ -8,10 +8,11 @@ import {
 import * as zod from "zod";
 import { useForm } from "react-hook-form";
 import { Input } from "../../components/Input";
-import { useContext, useEffect } from "react";
-import { JobsContext } from "../../contexts/JobsContext";
 import { CircularProgress } from "@mui/material";
 import { SnackbarMUI } from "../../components/AlertSnackbar";
+import { useSettings } from "../../contexts/settings/SettingsContext";
+import { useToast } from "../../contexts/toast/ToastContext";
+import { useEffect } from "react";
 
 const localEnvironmentConfigurationFormSchema = zod.object({
   server: zod.string().min(8, "Informe o servidor sql"),
@@ -37,7 +38,7 @@ export type remoteEnvironmentConfigurationFormProps = zod.infer<
 >;
 
 export function Settings() {
-  const {
+  /*  const {
     configDatabase,
     formDataLocal,
     formDataRemote,
@@ -46,7 +47,18 @@ export function Settings() {
     snackbarTestConnectionLocalEnvironment,
     snackbarTestConnectionRemoteEnvironment,
     updateStateSnackbarTestConnectionLocalEnvironment,
-  } = useContext(JobsContext);
+  } = useContext(JobsContext); */
+
+  const {
+    loadingTestConnectionLocalEnvironment,
+    loadingTestConnectionRemoteEnvironment,
+    toastTestConnectionLocalEnvironment,
+    toastTestConnectionRemoteEnvironment,
+    updateToastTestConnectionLocalEnvironment,
+    updateToastTestConnectionRemoteEnvironment,
+  } = useToast();
+
+  const { configDatabase, formDataLocal, formDataRemote } = useSettings();
 
   const localEnvironmentConfigurationForm =
     useForm<localEnvironmentConfigurationFormProps>({
@@ -150,31 +162,29 @@ export function Settings() {
             <Button type="submit">Testar Conexão</Button>
           )}
         </form>
-        {snackbarTestConnectionLocalEnvironment.status === true &&
-        snackbarTestConnectionLocalEnvironment.type === "success" &&
-        (
-          <SnackbarMUI
-            onUpdateStateSnackbarTestConnectionLocalEnvironment={
-              updateStateSnackbarTestConnectionLocalEnvironment
-            }
-            openSnackbar={snackbarTestConnectionLocalEnvironment.status}
-            status="success"
-            message={snackbarTestConnectionLocalEnvironment.message}
-          />
-        )}
+        {toastTestConnectionLocalEnvironment.status === true &&
+          toastTestConnectionLocalEnvironment.type === "success" && (
+            <SnackbarMUI
+              onUpdateStateToastTestConnection={
+                updateToastTestConnectionLocalEnvironment
+              }
+              openSnackbar={toastTestConnectionLocalEnvironment.status}
+              status="success"
+              message={toastTestConnectionLocalEnvironment.message}
+            />
+          )}
 
-      {snackbarTestConnectionLocalEnvironment.status === true &&
-        snackbarTestConnectionLocalEnvironment.type === "error" &&
-         (
-          <SnackbarMUI
-            onUpdateStateSnackbarTestConnectionLocalEnvironment={
-              updateStateSnackbarTestConnectionLocalEnvironment
-            }
-            openSnackbar={snackbarTestConnectionLocalEnvironment.status}
-            status="error"
-            message={snackbarTestConnectionLocalEnvironment.message}
-          />
-        )}
+        {toastTestConnectionLocalEnvironment.status === true &&
+          toastTestConnectionLocalEnvironment.type === "error" && (
+            <SnackbarMUI
+              onUpdateStateToastTestConnection={
+                updateToastTestConnectionLocalEnvironment
+              }
+              openSnackbar={toastTestConnectionLocalEnvironment.status}
+              status="error"
+              message={toastTestConnectionLocalEnvironment.message}
+            />
+          )}
       </ContentLocalEnvironment>
 
       <ContentRemoteEnvironment>
@@ -228,34 +238,30 @@ export function Settings() {
           )}
         </form>
 
-        {snackbarTestConnectionRemoteEnvironment.status === true &&
-        snackbarTestConnectionRemoteEnvironment.type === "success" &&
-        (
-          <SnackbarMUI
-            onUpdateStateSnackbarTestConnectionLocalEnvironment={
-              updateStateSnackbarTestConnectionLocalEnvironment
-            }
-            openSnackbar={snackbarTestConnectionRemoteEnvironment.status}
-            status="success"
-            message={snackbarTestConnectionRemoteEnvironment.message}
-          />
-        )}
+        {toastTestConnectionRemoteEnvironment.status === true &&
+          toastTestConnectionRemoteEnvironment.type === "success" && (
+            <SnackbarMUI
+              onUpdateStateToastTestConnection={
+                updateToastTestConnectionRemoteEnvironment
+              }
+              openSnackbar={toastTestConnectionRemoteEnvironment.status}
+              status="success"
+              message={toastTestConnectionRemoteEnvironment.message}
+            />
+          )}
 
-      {snackbarTestConnectionRemoteEnvironment.status === true &&
-        snackbarTestConnectionRemoteEnvironment.type === "error" &&
-         (
-          <SnackbarMUI
-            onUpdateStateSnackbarTestConnectionLocalEnvironment={
-              updateStateSnackbarTestConnectionLocalEnvironment
-            }
-            openSnackbar={snackbarTestConnectionRemoteEnvironment.status}
-            status="error"
-            message={snackbarTestConnectionRemoteEnvironment.message}
-          />
-        )}
+        {toastTestConnectionRemoteEnvironment.status === true &&
+          toastTestConnectionRemoteEnvironment.type === "error" && (
+            <SnackbarMUI
+              onUpdateStateToastTestConnection={
+                updateToastTestConnectionRemoteEnvironment
+              }
+              openSnackbar={toastTestConnectionRemoteEnvironment.status}
+              status="error"
+              message={toastTestConnectionRemoteEnvironment.message}
+            />
+          )}
       </ContentRemoteEnvironment>
-
-      
     </Container>
   );
 }

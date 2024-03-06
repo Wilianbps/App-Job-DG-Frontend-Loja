@@ -1,9 +1,8 @@
-import { ChangeEvent, useEffect, useState, useContext } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Card } from "../../components/Card";
 import { DatePickerMUI } from "../../components/DatePickerMUI";
 import { InputMUI } from "../../components/InputMUI";
 import { Job } from "./components/Job";
-import { JobsContext } from "../../contexts/JobsContext";
 
 import {
   ContainerMain,
@@ -16,6 +15,8 @@ import {
 } from "./styles";
 import { Box, CircularProgress } from "@mui/material";
 import { getHourFromISODate } from "../../libs/getHourFromISODate";
+import { useJob } from "../../contexts/job/JobContext";
+import { useSettings } from "../../contexts/settings/SettingsContext";
 
 interface IJob {
   id: string;
@@ -27,8 +28,8 @@ interface IJob {
 }
 
 export function Dashboard() {
-  const { jobs, selectedDate, handleSelectDate, connection } =
-    useContext(JobsContext);
+  const { connection } = useSettings();
+  const { jobs, selectedDate, handleSelectDate } = useJob();
 
   const [filteredJobs, setFilteredJobs] = useState<IJob[]>([]);
   const [search, setSearch] = useState("");
@@ -102,7 +103,7 @@ export function Dashboard() {
                   <td>status</td>
                 </tr>
               </Thead>
-              {filteredJobs.map(
+              {filteredJobs?.map(
                 (job) =>
                   job.status === "em execução" && (
                     <Job
@@ -131,7 +132,7 @@ export function Dashboard() {
                   <td>status</td>
                 </tr>
               </Thead>
-              {filteredJobs.map(
+              {filteredJobs?.map(
                 (job) =>
                   job.status !== "em execução" && (
                     <Job

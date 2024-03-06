@@ -1,7 +1,7 @@
 import { Alert, Snackbar } from "@mui/material";
 
 interface IPropsSnackbarMUI {
-  onUpdateStateSnackbarTestConnectionLocalEnvironment: (
+  onUpdateStateToastTestConnection: (
     status: boolean,
     type: string,
     message: string
@@ -12,12 +12,8 @@ interface IPropsSnackbarMUI {
 }
 
 export function SnackbarMUI(props: IPropsSnackbarMUI) {
-  const {
-    openSnackbar,
-    status,
-    message,
-    onUpdateStateSnackbarTestConnectionLocalEnvironment,
-  } = props;
+  const { openSnackbar, status, message, onUpdateStateToastTestConnection } =
+    props;
 
   const handleClose = (
     _event?: React.SyntheticEvent | Event,
@@ -26,7 +22,7 @@ export function SnackbarMUI(props: IPropsSnackbarMUI) {
     if (reason === "clickaway") {
       return;
     }
-    onUpdateStateSnackbarTestConnectionLocalEnvironment(false, "", "");
+    onUpdateStateToastTestConnection(false, "", "");
   };
 
   return (
