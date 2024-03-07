@@ -18,7 +18,7 @@ import { getHourFromISODate } from "../../libs/getHourFromISODate";
 import { useJob } from "../../contexts/job/JobContext";
 import { useSettings } from "../../contexts/settings/SettingsContext";
 
-interface IJob {
+interface IJob { 
   id: string;
   name: string;
   startTime: string;
@@ -103,7 +103,7 @@ export function Dashboard() {
                   <td>status</td>
                 </tr>
               </Thead>
-              {filteredJobs?.map(
+              {Array.isArray(filteredJobs) && filteredJobs?.map(
                 (job) =>
                   job.status === "em execução" && (
                     <Job
@@ -132,7 +132,7 @@ export function Dashboard() {
                   <td>status</td>
                 </tr>
               </Thead>
-              {filteredJobs?.map(
+              {Array.isArray(filteredJobs) && filteredJobs?.map(
                 (job) =>
                   job.status !== "em execução" && (
                     <Job

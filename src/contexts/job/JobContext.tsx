@@ -7,9 +7,10 @@ import {
   useState,
 } from "react";
 import { apiLoja } from "../../services/axios";
-import { IJob, JobsContextType } from "./interfaces";
+import { JobsContextType } from "./interfaces";
 import { useJobProcess } from "./hooks/useJobProcess";
 import { useSettings } from "../settings/SettingsContext";
+import { differenceInSeconds, format } from "date-fns";
 
 interface JobsProviderProps {
   children: ReactNode;
@@ -19,28 +20,25 @@ const JobsContext = createContext({} as JobsContextType);
 
 function JobsProvider({ children }: JobsProviderProps) {
   const { connection } = useSettings();
-  const { startJob } = useJobProcess();
-
-  const [jobs, setJobs] = useState<IJob[]>([]);
+  const { jobs, startJob, updateSetJobs } = useJobProcess();
 
   const [selectedDate, setSelectedDate] = useState<Date | unknown>(new Date());
 
-    function updateSetJobs(newJobs: IJob[]) {
-    setJobs(newJobs);
-  }
-
   function handleSelectDate(date: Date | unknown) {
-    console.log("entrou aqui", date);
     setSelectedDate(date);
   }
 
   const loadJobsByDateSelected = useCallback(async () => {
     if (selectedDate instanceof Date) {
-      const date = selectedDate.toISOString().split("T")[0];
+      const date = format(selectedDate, 'yyyy-MM-dd');
       const response = await apiLoja.get(`jobs?startTime=${date}`);
-      setJobs(response.data);
+
+      console.log("data", response.data)
+      if (JSON.stringify(jobs) !== JSON.stringify(response.data)) {
+        updateSetJobs(response.data);
+      }
     }
-  }, [selectedDate]);
+  }, [selectedDate, jobs, updateSetJobs]);
 
   useEffect(() => {
     loadJobsByDateSelected();
@@ -48,37 +46,30 @@ function JobsProvider({ children }: JobsProviderProps) {
 
   useEffect(() => {
     if (connection) {
-      const checkLastApiJobsUserCallTime = async () => {
-        const lastAPICallTime = JSON.parse(
-          localStorage.getItem("lastAPICallTime:jobsUser")!
+      const intervalId = setInterval(async () => {
+        const elepsedTime = JSON.parse(
+          localStorage.getItem("elapsedTime:jobs")!
         );
-        const currentTime = new Date().getTime();
-        if (
-          !lastAPICallTime ||
-          currentTime - parseInt(lastAPICallTime) >= 60000
-        ) {
-          const callFlag = localStorage.getItem("callFlag:jobsUser");
 
-          if (!callFlag || callFlag === "false") {
-            await startJob();
-            localStorage.setItem(
-              "lastAPICallTime:jobsUser",
-              currentTime.toString()
-            );
-            localStorage.setItem("callFlag:jobsUser", "true");
-          } else {
-            localStorage.setItem("callFlag:jobsUser", "false");
-          }
+        console.log(elepsedTime);
+        if (elepsedTime <= 29) {
+          localStorage.setItem(
+            "elapsedTime:jobs",
+            (elepsedTime + 1).toString()
+          );
+        } else {
+          localStorage.setItem("elapsedTime:jobs", "1");
         }
-      };
 
-      checkLastApiJobsUserCallTime();
+        if (elepsedTime == 30) {
+          await startJob();
+          clearInterval(intervalId);
+        }
+      }, 1000);
 
-      const interval = setInterval(checkLastApiJobsUserCallTime, 30000);
-
-      return () => clearInterval(interval);
+      return () => clearInterval(intervalId);
     }
-  }, []);
+  }, [connection, startJob]);
 
   return (
     <JobsContext.Provider

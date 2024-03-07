@@ -5,28 +5,25 @@ import { IJob } from "../interfaces";
 export function useJobProcess() {
   const [jobs, setJobs] = useState<IJob[]>([]);
 
-  console.log("jobs")
-
   const idJobActive = useRef("");
+
+  function updateSetJobs(newJob: IJob[]) {
+    setJobs(newJob);
+  }
 
   const newDate = new Date().toISOString();
 
-  const updateStatusJob = useCallback(
-    async (status: number) => {
-      const id = localStorage.getItem("jobId:user")!;
-      const statusJob = status === 200 ? "processado" : "cancelado";
+  const updateStatusJob = useCallback(async (status: number) => {
+    const id = localStorage.getItem("jobId:user")!;
+    const statusJob = status === 200 ? "processado" : "cancelado";
 
-      const response = await apiLoja.put(
-        `jobs/users/${id}?status=${statusJob}`
-      );
+    const response = await apiLoja.put(`jobs/users/${id}?status=${statusJob}`);
 
-      setJobs([...jobs, response.data]);
+    setJobs((state) => [...state, response.data]);
 
-      localStorage.removeItem("jobId:user");
-      idJobActive.current = "";
-    },
-    [jobs, setJobs]
-  );
+    localStorage.removeItem("jobId:user");
+    idJobActive.current = "";
+  }, []);
 
   const updateStatusOnStage = useCallback(
     async (dataUsers: []) => {
@@ -79,7 +76,7 @@ export function useJobProcess() {
 
   const startJob = useCallback(async () => {
     if (idJobActive.current) {
-      searchOnStage();
+      return;
     } else {
       const newJob = {
         name: "006",
@@ -100,5 +97,5 @@ export function useJobProcess() {
     }
   }, [idJobActive, newDate, searchOnStage]);
 
-  return { startJob };
+  return { jobs, startJob, updateSetJobs };
 }
