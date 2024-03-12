@@ -1,43 +1,43 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { apiLoja, apiRetaguarda } from "../../../services/axios";
 import { IJob } from "../interfaces";
 
 export function useJobProcess() {
   const [jobs, setJobs] = useState<IJob[]>([]);
 
-  const idJobActive = useRef("");
+  /*   const idJobActive = useRef(""); */
 
   function updateSetJobs(newJob: IJob[]) {
     setJobs(newJob);
   }
 
-  const newDate = new Date().toISOString();
+  const updateStatusJob = useCallback(async (status: number, id: string) => {
+    /*     const id = localStorage.getItem("jobId:user")!; */
 
-  const updateStatusJob = useCallback(async (status: number) => {
-    const id = localStorage.getItem("jobId:user")!;
     const statusJob = status === 200 ? "processado" : "cancelado";
 
-    const response = await apiLoja.put(`jobs/users/${id}?status=${statusJob}`);
+    const response = await apiLoja.put(`jobs/path-remoteToStoreDB/${id}?status=${statusJob}`);
 
     setJobs((state) => [...state, response.data]);
-
+    /* 
     localStorage.removeItem("jobId:user");
-    idJobActive.current = "";
+    idJobActive.current = ""; */
   }, []);
 
   const updateStatusOnStage = useCallback(
-    async (dataUsers: []) => {
+    async (data: [], idJob: string) => {
+      console.log("entrou aqui", data);
       await apiRetaguarda
-        .post("users", dataUsers)
+        .put("update-Status-On-Stage", data)
         .then((response) => {
           const status = response.status;
 
-          updateStatusJob(status);
+          updateStatusJob(status, idJob);
         })
         .catch((error) => {
           if (error.response) {
             const status = error.response.status;
-            updateStatusJob(status);
+            updateStatusJob(status, idJob);
           }
         });
     },
@@ -45,57 +45,62 @@ export function useJobProcess() {
   );
 
   const addDataInTableStore = useCallback(
-    async (dataUsers: []) => {
+    async (data: [], idJob: string) => {
       await apiLoja
-        .post("users", dataUsers)
+        .post("register-path-remoteToStoreDB", data)
         .then(() => {
-          updateStatusOnStage(dataUsers);
+          updateStatusOnStage(data, idJob);
         })
         .catch((error) => {
           if (error.response) {
             const status = error.response.status;
-            updateStatusJob(status);
+            updateStatusJob(status, idJob);
           }
         });
     },
     [updateStatusJob, updateStatusOnStage]
   );
 
-  const searchOnStage = useCallback(async () => {
-    const fetchUsers = await apiRetaguarda.get("users", {
-      params: { table: "USUARIO_DGCS", storeCode: "000008" },
-    });
+  const searchOnStage = useCallback(
+    async (queryTable: { table: string; storeCode: string }, idJob: string) => {
+      const fetchUsers = await apiRetaguarda.get("search-on-stage", {
+        params: { table: queryTable.table, storeCode: queryTable.storeCode },
+      });
 
-    if (fetchUsers.data.length > 0) {
-      const users = fetchUsers.data;
-      addDataInTableStore(users);
-    } else {
-      updateStatusJob(200);
-    }
-  }, [updateStatusJob, addDataInTableStore]);
+      if (fetchUsers.data.length > 0) {
+        const users = fetchUsers.data;
+        addDataInTableStore(users, idJob);
+      } else {
+        updateStatusJob(200, idJob);
+      }
+    },
+    [updateStatusJob, addDataInTableStore]
+  );
 
-  const startJob = useCallback(async () => {
-    if (idJobActive.current) {
-      return;
-    } else {
+  const startJob = useCallback(
+    async (queryTable: { table: string; storeCode: string }) => {
+      const newDate = new Date().toISOString();
       const newJob = {
         name: "006",
         startTime: newDate,
-        table: "USUARIO_DGCS",
+        table: queryTable.table,
         action: "",
         status: "em execução",
       };
 
-      const response = await apiLoja.post("jobs/users", newJob);
+      const response = await apiLoja.post("jobs/path-remoteToStoreDB", newJob);
       setJobs((state) => [...state, response.data]);
 
-      idJobActive.current = response.data.id;
+      const idJob = response.data.id;
 
-      localStorage.setItem("jobId:user", idJobActive.current);
+      /*  idJobActive.current = response.data.id;
 
-      searchOnStage();
-    }
-  }, [idJobActive, newDate, searchOnStage]);
+            localStorage.setItem(`jobId:${queryTable.table.toLowerCase()}`, idJobActive.current); */
+
+      searchOnStage(queryTable, idJob);
+    },
+    [searchOnStage]
+  );
 
   return { jobs, startJob, updateSetJobs };
 }

@@ -13,3 +13,11 @@ export interface JobsContextType {
   updateSetJobs: (newJobs: IJob[]) => void;
   handleSelectDate: (date: Date | unknown) => void;
 }
+
+export interface ITables {
+  id: number;
+  tableName: string;
+  orderTable: number;
+  status: number;
+  type: string;
+}

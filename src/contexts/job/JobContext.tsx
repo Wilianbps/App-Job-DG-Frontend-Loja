@@ -6,11 +6,11 @@ import {
   useEffect,
   useState,
 } from "react";
-import { apiLoja } from "../../services/axios";
-import { JobsContextType } from "./interfaces";
+import { apiLoja, apiRetaguarda } from "../../services/axios";
+import { ITables, JobsContextType } from "./interfaces";
 import { useJobProcess } from "./hooks/useJobProcess";
 import { useSettings } from "../settings/SettingsContext";
-import { differenceInSeconds, format } from "date-fns";
+import { format } from "date-fns";
 
 interface JobsProviderProps {
   children: ReactNode;
@@ -23,6 +23,8 @@ function JobsProvider({ children }: JobsProviderProps) {
   const { jobs, startJob, updateSetJobs } = useJobProcess();
 
   const [selectedDate, setSelectedDate] = useState<Date | unknown>(new Date());
+  const [isIntervalStartJobs, setIsIntervalStartJobs] = useState(false);
+  const [arrayTables, setArrayTables] = useState<ITables[]>([]);
 
   function handleSelectDate(date: Date | unknown) {
     setSelectedDate(date);
@@ -30,10 +32,9 @@ function JobsProvider({ children }: JobsProviderProps) {
 
   const loadJobsByDateSelected = useCallback(async () => {
     if (selectedDate instanceof Date) {
-      const date = format(selectedDate, 'yyyy-MM-dd');
-      const response = await apiLoja.get(`jobs?startTime=${date}`);
-
-      console.log("data", response.data)
+      const date = format(selectedDate, "yyyy-MM-dd");
+      const url = `jobs?startTime=${date}`;
+      const response = await apiLoja.get(url);
       if (JSON.stringify(jobs) !== JSON.stringify(response.data)) {
         updateSetJobs(response.data);
       }
@@ -44,14 +45,29 @@ function JobsProvider({ children }: JobsProviderProps) {
     loadJobsByDateSelected();
   }, [loadJobsByDateSelected]);
 
+  async function getActiveTables() {
+    const queryPams = {
+      status: 1,
+      type: "LOJA",
+    };
+    const response = await apiRetaguarda.get("active-store-tables", {
+      params: queryPams,
+    });
+
+    setArrayTables(response.data);
+  }
+
+  useEffect(() => {
+    getActiveTables();
+  }, []);
+
   useEffect(() => {
     if (connection) {
       const intervalId = setInterval(async () => {
         const elepsedTime = JSON.parse(
           localStorage.getItem("elapsedTime:jobs")!
         );
-
-        console.log(elepsedTime);
+        /*      console.log(elepsedTime); */
         if (elepsedTime <= 29) {
           localStorage.setItem(
             "elapsedTime:jobs",
@@ -62,14 +78,30 @@ function JobsProvider({ children }: JobsProviderProps) {
         }
 
         if (elepsedTime == 30) {
-          await startJob();
-          clearInterval(intervalId);
+          setIsIntervalStartJobs(true);
         }
       }, 1000);
 
       return () => clearInterval(intervalId);
     }
-  }, [connection, startJob]);
+  }, [connection, startJob, arrayTables]);
+
+  useEffect(() => {
+    function cycleToStartJobs() {
+      if (isIntervalStartJobs) {
+        arrayTables.forEach((item: ITables) => {
+          const queryTable = {
+            table: item.tableName,
+            storeCode: "000008",
+          };
+          startJob(queryTable);
+        });
+
+        setIsIntervalStartJobs(false);
+      }
+    }
+    cycleToStartJobs();
+  }, [isIntervalStartJobs, arrayTables, startJob]);
 
   return (
     <JobsContext.Provider
