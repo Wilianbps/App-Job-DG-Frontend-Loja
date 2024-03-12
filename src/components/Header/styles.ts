@@ -17,6 +17,8 @@ export const Content = styled.div`
 `;
 
 export const Logo = styled.div`
+  cursor: pointer;
+
   img {
     width: 11rem;
   }

@@ -24,7 +24,13 @@ function JobsProvider({ children }: JobsProviderProps) {
 
   const [selectedDate, setSelectedDate] = useState<Date | unknown>(new Date());
   const [isIntervalStartJobs, setIsIntervalStartJobs] = useState(false);
-  const [arrayTables, setArrayTables] = useState<ITables[]>([]);
+  const [arrayAllActiveTables, setAllActiveTablesStore] = useState<ITables[]>(
+    []
+  );
+  const [arrayActiveTablesStore, setActiveTablesStore] = useState<ITables[]>(
+    []
+  );
+
 
   function handleSelectDate(date: Date | unknown) {
     setSelectedDate(date);
@@ -45,7 +51,17 @@ function JobsProvider({ children }: JobsProviderProps) {
     loadJobsByDateSelected();
   }, [loadJobsByDateSelected]);
 
-  async function getActiveTables() {
+  async function getAllActiveTables() {
+    const queryPams = {
+      status: 1,
+    };
+    const response = await apiRetaguarda.get("all-active-tables", {
+      params: queryPams,
+    });
+    setAllActiveTablesStore(response.data);
+  }
+
+  async function getActiveTablesStore() {
     const queryPams = {
       status: 1,
       type: "LOJA",
@@ -54,20 +70,20 @@ function JobsProvider({ children }: JobsProviderProps) {
       params: queryPams,
     });
 
-    setArrayTables(response.data);
+    setActiveTablesStore(response.data);
   }
 
   useEffect(() => {
-    getActiveTables();
+    getActiveTablesStore();
+    getAllActiveTables();
   }, []);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (connection) {
       const intervalId = setInterval(async () => {
         const elepsedTime = JSON.parse(
           localStorage.getItem("elapsedTime:jobs")!
         );
-        /*      console.log(elepsedTime); */
         if (elepsedTime <= 29) {
           localStorage.setItem(
             "elapsedTime:jobs",
@@ -84,12 +100,12 @@ function JobsProvider({ children }: JobsProviderProps) {
 
       return () => clearInterval(intervalId);
     }
-  }, [connection, startJob, arrayTables]);
+  }, [connection]);
 
   useEffect(() => {
     function cycleToStartJobs() {
       if (isIntervalStartJobs) {
-        arrayTables.forEach((item: ITables) => {
+        arrayActiveTablesStore.forEach((item: ITables) => {
           const queryTable = {
             table: item.tableName,
             storeCode: "000008",
@@ -101,13 +117,14 @@ function JobsProvider({ children }: JobsProviderProps) {
       }
     }
     cycleToStartJobs();
-  }, [isIntervalStartJobs, arrayTables, startJob]);
+  }, [isIntervalStartJobs, arrayActiveTablesStore, startJob]); */
 
   return (
     <JobsContext.Provider
       value={{
         jobs,
         updateSetJobs,
+        arrayAllActiveTables,
         selectedDate,
         handleSelectDate,
       }}

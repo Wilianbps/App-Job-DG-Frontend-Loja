@@ -108,7 +108,6 @@ function SettingProvider({ children }: SettingsProviderProps) {
     }
 
     if (database === "remote") {
-      console.log("entrou squi remote");
       updateLoadingTestConnectionRemoteEnvironment(true);
       const baseURL = data.baseURL;
       localStorage.setItem("baseURL:local", baseURL!);

@@ -4,15 +4,17 @@ import {
   Container,
   ContentLocalEnvironment,
   ContentRemoteEnvironment,
+  ContentConfigJobExecution,
 } from "./styles";
 import * as zod from "zod";
 import { useForm } from "react-hook-form";
 import { Input } from "../../components/Input";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, FormControlLabel, Switch } from "@mui/material";
 import { SnackbarMUI } from "../../components/AlertSnackbar";
 import { useSettings } from "../../contexts/settings/SettingsContext";
 import { useToast } from "../../contexts/toast/ToastContext";
 import { useEffect } from "react";
+import { useSettingsJobExecution } from "../../contexts/settingJobExecution/SettingJobExecutionContex";
 
 const localEnvironmentConfigurationFormSchema = zod.object({
   server: zod.string().min(8, "Informe o servidor sql"),
@@ -38,17 +40,6 @@ export type remoteEnvironmentConfigurationFormProps = zod.infer<
 >;
 
 export function Settings() {
-  /*  const {
-    configDatabase,
-    formDataLocal,
-    formDataRemote,
-    loadingTestConnectionLocalEnvironment,
-    loadingTestConnectionRemoteEnvironment,
-    snackbarTestConnectionLocalEnvironment,
-    snackbarTestConnectionRemoteEnvironment,
-    updateStateSnackbarTestConnectionLocalEnvironment,
-  } = useContext(JobsContext); */
-
   const {
     loadingTestConnectionLocalEnvironment,
     loadingTestConnectionRemoteEnvironment,
@@ -59,6 +50,8 @@ export function Settings() {
   } = useToast();
 
   const { configDatabase, formDataLocal, formDataRemote } = useSettings();
+
+  const { settingJobExecution } = useSettingsJobExecution();
 
   const localEnvironmentConfigurationForm =
     useForm<localEnvironmentConfigurationFormProps>({
@@ -115,6 +108,11 @@ export function Settings() {
     setValueRemoteEnvironment("user", formDataRemote.user);
     setValueRemoteEnvironment("password", formDataRemote.password);
   }, [setValueRemoteEnvironment, formDataRemote]);
+
+  const activeJobs =
+    settingJobExecution.status == 1
+      ? true
+      : settingJobExecution.status == 0 && false;
 
   return (
     <Container>
@@ -262,6 +260,30 @@ export function Settings() {
             />
           )}
       </ContentRemoteEnvironment>
+
+      <ContentConfigJobExecution>
+        <h3>Configuração da Execução dos jobs</h3>
+
+        <div>
+          <FormControlLabel
+            control={
+              <Switch checked={activeJobs} /* onChange={handleChange} */ />
+            }
+            label="Ativar ou desativar execução do job"
+          />
+        </div>
+        <div className="job-execution-time">
+          <span>Tempo de execução do job: </span>
+          <input
+            type="number"
+            min={1}
+            max={15}
+            defaultValue={settingJobExecution.executionInterval}
+          />
+        </div>
+
+        <Button type="submit">Salvar</Button>
+      </ContentConfigJobExecution>
     </Container>
   );
 }

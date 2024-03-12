@@ -84,6 +84,7 @@ export function useJobProcess() {
         name: "006",
         startTime: newDate,
         table: queryTable.table,
+        path: "1",
         action: "",
         status: "em execução",
       };

@@ -1,4 +1,4 @@
-import {
+/* import {
   ReactNode,
   createContext,
   useCallback,
@@ -66,7 +66,7 @@ interface JobsProviderProps {
 export const JobsContext = createContext({} as JobsContextType);
 
 export function JobsProvider({ children }: JobsProviderProps) {
-/*   const startJob = useStartJob(); */
+
   const [jobs, setJobs] = useState<IJob[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | unknown>(new Date());
   const [statusConnectionDatabaseLocal, setStatusConnectionDatabaseLocal] =
@@ -74,10 +74,6 @@ export function JobsProvider({ children }: JobsProviderProps) {
 
   const [statusConnectionDatabaseRemote, setStatusConnectionDatabaseRemote] =
     useState(JSON.parse(localStorage.getItem("connectionDB:remote")!));
-
-  /* const [connection, setConnection] = useState(
-    statusConnectionDatabaseLocal && statusConnectionDatabaseRemote
-  ); */
 
   const [formDataLocal, setFormDataLocal] = useState<IPropsDatabase>(
     {} as IPropsDatabase
@@ -87,7 +83,7 @@ export function JobsProvider({ children }: JobsProviderProps) {
     {} as IPropsDatabase
   );
 
-  //Loading Test Connection
+
   const [
     loadingTestConnectionLocalEnvironment,
     setLoadingTestConnectionLocalEnvironment,
@@ -98,7 +94,6 @@ export function JobsProvider({ children }: JobsProviderProps) {
     setLoadingTestConnectionRemoteEnvironment,
   ] = useState(false);
 
-  //Snackbar Test Connection
   const [
     snackbarTestConnectionLocalEnvironment,
     setSnackbarTestConnectionLocalEnvironment,
@@ -288,7 +283,6 @@ export function JobsProvider({ children }: JobsProviderProps) {
           const callFlag = localStorage.getItem("callFlag:jobsUser");
 
           if (!callFlag || callFlag === "false") {
-          /*   await startJob(); */
             localStorage.setItem(
               "lastAPICallTime:jobsUser",
               currentTime.toString()
@@ -350,3 +344,4 @@ export function JobsProvider({ children }: JobsProviderProps) {
     </JobsContext.Provider>
   );
 }
+ */

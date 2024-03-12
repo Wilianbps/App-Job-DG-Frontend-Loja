@@ -7,6 +7,7 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  margin-bottom: 2.5rem;
 `;
 
 export const ContentLocalEnvironment = styled.div`
@@ -34,7 +35,7 @@ export const ContentRemoteEnvironment = styled.div`
 `;
 
 export const Button = styled.button`
-max-width: 190px;
+  max-width: 190px;
   min-width: 100px;
   display: flex;
   justify-content: center;
@@ -52,5 +53,18 @@ max-width: 190px;
 
   &:hover {
     filter: opacity(0.8);
+  }
+`;
+
+export const ContentConfigJobExecution = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  .job-execution-time {
+    span {
+      font-weight: bold;
+      color: ${props => props.theme.orange};
+    }
   }
 `;

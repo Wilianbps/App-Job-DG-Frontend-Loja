@@ -8,6 +8,10 @@ export const Tbody = styled.tbody<ITbody>`
   tr {
     position: relative;
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.1);
+    .path {
+      color: ${(props) => props.theme.blue};
+      font-weight: bold;
+    }
 
     > td {
       font-size: 0.938rem;
@@ -58,11 +62,11 @@ export const Tag = styled.span<ITag>`
   width: 5px;
   height: 100%;
   background-color: ${(props) =>
-    props.variant == "USUARIO_DGCS"
+    props.variant == "1"
       ? props.theme.blue
-      : props.variant == "SERVIDORES_DGCS"
+      : props.variant == "2"
       ? props.theme.pink
-      : props.variant == "AUX_ENTRADA" && props.theme.orange};
+      : ""};
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
 `;

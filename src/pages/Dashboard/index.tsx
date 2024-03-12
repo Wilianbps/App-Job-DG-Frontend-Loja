@@ -7,22 +7,29 @@ import { Job } from "./components/Job";
 import {
   ContainerMain,
   ContainerSearch,
+  ContainerPagination,
   ButtonSearch,
   ContainerJobsList,
   Title,
   ListJobs,
   Thead,
 } from "./styles";
-import { Box, CircularProgress } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Pagination,
+  PaginationItem,
+} from "@mui/material";
 import { getHourFromISODate } from "../../libs/getHourFromISODate";
 import { useJob } from "../../contexts/job/JobContext";
 import { useSettings } from "../../contexts/settings/SettingsContext";
 
-interface IJob { 
+interface IJob {
   id: string;
   name: string;
   startTime: string;
   table: string;
+  path: string;
   action: string;
   status: string;
 }
@@ -31,9 +38,20 @@ export function Dashboard() {
   const { connection } = useSettings();
   const { jobs, selectedDate, handleSelectDate } = useJob();
 
+  const [page, setPage] = useState(1);
   const [filteredJobs, setFilteredJobs] = useState<IJob[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleChangePage = (_event: ChangeEvent<unknown>, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const itemsPerPage = 10;
+
+  const startIndex = (page - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const listJobs = filteredJobs.slice(startIndex, endIndex);
 
   function handleNewSearchChange(event: ChangeEvent<HTMLTextAreaElement>) {
     setSearch(event.target.value);
@@ -99,23 +117,26 @@ export function Dashboard() {
                   <td>nome</td>
                   <td>Início</td>
                   <td>tabela</td>
-                  <td>ação</td>
+                  <td>Caminho</td>
+                  <td>Ação</td>
                   <td>status</td>
                 </tr>
               </Thead>
-              {Array.isArray(filteredJobs) && filteredJobs?.map(
-                (job) =>
-                  job.status === "em execução" && (
-                    <Job
-                      key={job.id}
-                      name={job.name}
-                      startTime={getHourFromISODate(job.startTime)}
-                      table={job.table}
-                      action={job.action}
-                      status={job.status}
-                    />
-                  )
-              )}
+              {Array.isArray(listJobs) &&
+                listJobs?.map(
+                  (job) =>
+                    job.status === "em execução" && (
+                      <Job
+                        key={job.id}
+                        name={job.name}
+                        startTime={getHourFromISODate(job.startTime)}
+                        table={job.table}
+                        path={job.path}
+                        action={job.action}
+                        status={job.status}
+                      />
+                    )
+                )}
             </ListJobs>
           </ContainerJobsList>
 
@@ -128,25 +149,41 @@ export function Dashboard() {
                   <td>nome</td>
                   <td>Início</td>
                   <td>tabela</td>
-                  <td>ação</td>
+                  <td>Caminho</td>
+                  <td>Ação</td>
                   <td>status</td>
                 </tr>
               </Thead>
-              {Array.isArray(filteredJobs) && filteredJobs?.map(
-                (job) =>
-                  job.status !== "em execução" && (
-                    <Job
-                      key={job.id}
-                      name={job.name}
-                      startTime={getHourFromISODate(job.startTime)}
-                      table={job.table}
-                      action={job.action}
-                      status={job.status}
-                    />
-                  )
-              )}
+              {Array.isArray(listJobs) &&
+                listJobs?.map(
+                  (job) =>
+                    job.status !== "em execução" && (
+                      <Job
+                        key={job.id}
+                        name={job.name}
+                        startTime={getHourFromISODate(job.startTime)}
+                        table={job.table}
+                        path={job.path}
+                        action={job.action}
+                        status={job.status}
+                      />
+                    )
+                )}
             </ListJobs>
           </ContainerJobsList>
+
+          <ContainerPagination>
+            <Pagination
+              count={Math.ceil(filteredJobs.length / itemsPerPage)}
+              color="primary"
+              variant="outlined"
+              page={page}
+              onChange={handleChangePage}
+              renderItem={(item) => (
+                <PaginationItem component="a" href="#" {...item} />
+              )}
+            />
+          </ContainerPagination>
         </ContainerMain>
       )}
     </>

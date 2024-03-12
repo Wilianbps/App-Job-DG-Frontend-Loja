@@ -6,6 +6,7 @@ export const ContainerHome = styled.div`
 
 export const ContainerMain = styled.div`
   margin-top: -70px;
+  margin-bottom: 2.5rem;
 `;
 
 export const ContainerSearch = styled.div`
@@ -31,7 +32,7 @@ export const ContainerSearch = styled.div`
 export const InputSearch = styled.input``;
 
 export const ButtonSearch = styled.button`
-width: 120px;
+  width: 120px;
   font-size: 1rem;
   color: ${(props) => props.theme.white};
   background-color: ${(props) => props.theme["orange-dark"]};
@@ -47,9 +48,9 @@ width: 120px;
     filter: opacity(0.8);
   }
   &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 export const ContainerJobsList = styled.div`
@@ -79,4 +80,10 @@ export const Thead = styled.thead`
       padding-right: 30px;
     }
   }
+`;
+
+export const ContainerPagination = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
 `;

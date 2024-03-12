@@ -3,6 +3,7 @@ export interface IJob {
   name: string;
   startTime: string;
   table: string;
+  path: string;
   action: string;
   status: string;
 }
@@ -10,6 +11,7 @@ export interface IJob {
 export interface JobsContextType {
   jobs: IJob[];
   selectedDate: Date | unknown;
+  arrayAllActiveTables: ITables[]
   updateSetJobs: (newJobs: IJob[]) => void;
   handleSelectDate: (date: Date | unknown) => void;
 }

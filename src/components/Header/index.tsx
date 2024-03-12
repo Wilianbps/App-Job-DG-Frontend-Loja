@@ -1,38 +1,28 @@
-import { useState } from "react";
-
 import { ContainerButtons, Button, Container, Content, Logo } from "./styles";
 import logo from "../../assets/logo.png";
-import { ModalMUI } from "../Modal";
+import { useNavigate } from "react-router-dom";
 
 export function Header() {
-  const [openModalConfig, setOpenModalConfig] = useState(false);
+  const navigate = useNavigate();
 
-  function handleClickOpenModalConfig() {
-    setOpenModalConfig(true);
+  function handleSendToPageConfig() {
+    navigate("/configurar-ambiente");
   }
 
-  function handleCloseModalConfig() {
-    setOpenModalConfig(false);
+  function handleSendToPageHome() {
+    navigate("/");
   }
 
   return (
     <Container>
       <Content>
-        <Logo>
+        <Logo onClick={handleSendToPageHome}>
           <img src={logo} alt="" />
         </Logo>
         <ContainerButtons>
-          <Button onClick={handleClickOpenModalConfig}>
-            Configurar Ambiente
-          </Button>
-          <Button>Executar Jobs</Button>
+          <Button onClick={handleSendToPageConfig}>Configurar Ambiente</Button>
         </ContainerButtons>
       </Content>
-
-      <ModalMUI
-        onHandleCloseModal={handleCloseModalConfig}
-        openModal={openModalConfig}
-      />
     </Container>
   );
 }

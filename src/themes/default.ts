@@ -7,7 +7,6 @@ export const defaultTheme = {
   pink: "#DE65FC",
   
 
-
   "orange-light": "#FFE6D8",
   "orange-dark": "#F28344",
   "orange-1": "#F28344",

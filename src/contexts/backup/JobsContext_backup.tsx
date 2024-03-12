@@ -1,4 +1,4 @@
-import {
+/* import {
   ReactNode,
   createContext,
   useCallback,
@@ -75,9 +75,6 @@ export function JobsProvider({ children }: JobsProviderProps) {
   const [statusConnectionDatabaseRemote, setStatusConnectionDatabaseRemote] =
     useState(JSON.parse(localStorage.getItem("connectionDB:remote")!));
 
-  /* const [connection, setConnection] = useState(
-    statusConnectionDatabaseLocal && statusConnectionDatabaseRemote
-  ); */
 
   const [formDataLocal, setFormDataLocal] = useState<IPropsDatabase>(
     {} as IPropsDatabase
@@ -86,8 +83,6 @@ export function JobsProvider({ children }: JobsProviderProps) {
   const [formDataRemote, setFormDataRemote] = useState<IPropsDatabase>(
     {} as IPropsDatabase
   );
-
-  //Loading Test Connection
   const [
     loadingTestConnectionLocalEnvironment,
     setLoadingTestConnectionLocalEnvironment,
@@ -98,7 +93,7 @@ export function JobsProvider({ children }: JobsProviderProps) {
     setLoadingTestConnectionRemoteEnvironment,
   ] = useState(false);
 
-  //Snackbar Test Connection
+
   const [
     snackbarTestConnectionLocalEnvironment,
     setSnackbarTestConnectionLocalEnvironment,
@@ -388,7 +383,7 @@ export function JobsProvider({ children }: JobsProviderProps) {
           } else {
             localStorage.setItem("callFlag:jobsUser", "false");
           }
-          // Se não houve chamada anterior ou se já passaram 5 minutos desde a última chamada
+
         }
       };
 
@@ -442,3 +437,4 @@ export function JobsProvider({ children }: JobsProviderProps) {
     </JobsContext.Provider>
   );
 }
+ */
