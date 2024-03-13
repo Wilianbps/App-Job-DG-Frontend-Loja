@@ -11,6 +11,7 @@ export function Header() {
 
   function handleSendToPageHome() {
     navigate("/");
+    window.location.reload();
   }
 
   return (

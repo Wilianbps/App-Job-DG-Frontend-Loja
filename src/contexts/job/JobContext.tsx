@@ -11,6 +11,7 @@ import { ITables, JobsContextType } from "./interfaces";
 import { useJobProcess } from "./hooks/useJobProcess";
 import { useSettings } from "../settings/SettingsContext";
 import { format } from "date-fns";
+import { useSettingsJobExecution } from "../settingJobExecution/SettingJobExecutionContext";
 
 interface JobsProviderProps {
   children: ReactNode;
@@ -21,6 +22,7 @@ const JobsContext = createContext({} as JobsContextType);
 function JobsProvider({ children }: JobsProviderProps) {
   const { connection } = useSettings();
   const { jobs, startJob, updateSetJobs } = useJobProcess();
+  const { checked, executionInterval } = useSettingsJobExecution();
 
   const [selectedDate, setSelectedDate] = useState<Date | unknown>(new Date());
   const [isIntervalStartJobs, setIsIntervalStartJobs] = useState(false);
@@ -31,6 +33,7 @@ function JobsProvider({ children }: JobsProviderProps) {
     []
   );
 
+  const interval: number = parseInt(executionInterval) * 60;
 
   function handleSelectDate(date: Date | unknown) {
     setSelectedDate(date);
@@ -78,29 +81,29 @@ function JobsProvider({ children }: JobsProviderProps) {
     getAllActiveTables();
   }, []);
 
-  /* useEffect(() => {
-    if (connection) {
+  useEffect(() => {
+    if (connection && checked) {
       const intervalId = setInterval(async () => {
         const elepsedTime = JSON.parse(
           localStorage.getItem("elapsedTime:jobs")!
         );
-        if (elepsedTime <= 29) {
+        if (elepsedTime >= 2) {
           localStorage.setItem(
             "elapsedTime:jobs",
-            (elepsedTime + 1).toString()
+            (elepsedTime - 1).toString()
           );
         } else {
-          localStorage.setItem("elapsedTime:jobs", "1");
+          localStorage.setItem("elapsedTime:jobs", interval.toString());
         }
 
-        if (elepsedTime == 30) {
+        if (elepsedTime == 1) {
           setIsIntervalStartJobs(true);
         }
       }, 1000);
 
       return () => clearInterval(intervalId);
     }
-  }, [connection]);
+  }, [connection, checked, interval]);
 
   useEffect(() => {
     function cycleToStartJobs() {
@@ -117,7 +120,7 @@ function JobsProvider({ children }: JobsProviderProps) {
       }
     }
     cycleToStartJobs();
-  }, [isIntervalStartJobs, arrayActiveTablesStore, startJob]); */
+  }, [isIntervalStartJobs, arrayActiveTablesStore, startJob]);
 
   return (
     <JobsContext.Provider

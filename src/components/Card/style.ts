@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 export const Container = styled.div`
   width: 24rem;
+  min-height: 225px;
   margin: 0 auto;
   transform: translateY(calc(-50%));
   background-color: ${(props) => props.theme["orange-dark"]};

@@ -14,7 +14,7 @@ import { SnackbarMUI } from "../../components/AlertSnackbar";
 import { useSettings } from "../../contexts/settings/SettingsContext";
 import { useToast } from "../../contexts/toast/ToastContext";
 import { useEffect } from "react";
-import { useSettingsJobExecution } from "../../contexts/settingJobExecution/SettingJobExecutionContex";
+import { useSettingsJobExecution } from "../../contexts/settingJobExecution/SettingJobExecutionContext";
 
 const localEnvironmentConfigurationFormSchema = zod.object({
   server: zod.string().min(8, "Informe o servidor sql"),
@@ -51,7 +51,14 @@ export function Settings() {
 
   const { configDatabase, formDataLocal, formDataRemote } = useSettings();
 
-  const { settingJobExecution } = useSettingsJobExecution();
+  const {
+    updateSettingsJobExecution,
+    updateStateChecked,
+    updateStateInterval,
+    checked,
+    executionInterval,
+    loadingSaveSettingsJobExecution,
+  } = useSettingsJobExecution();
 
   const localEnvironmentConfigurationForm =
     useForm<localEnvironmentConfigurationFormProps>({
@@ -93,6 +100,14 @@ export function Settings() {
     configDatabase(data, "remote");
   }
 
+  function handleChangeSettingsJobExecution(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    updateSettingsJobExecution();
+  }
+
   useEffect(() => {
     setValueLocalEnvironment("server", formDataLocal.server);
     setValueLocalEnvironment("database", formDataLocal.database);
@@ -108,11 +123,6 @@ export function Settings() {
     setValueRemoteEnvironment("user", formDataRemote.user);
     setValueRemoteEnvironment("password", formDataRemote.password);
   }, [setValueRemoteEnvironment, formDataRemote]);
-
-  const activeJobs =
-    settingJobExecution.status == 1
-      ? true
-      : settingJobExecution.status == 0 && false;
 
   return (
     <Container>
@@ -264,25 +274,38 @@ export function Settings() {
       <ContentConfigJobExecution>
         <h3>Configuração da Execução dos jobs</h3>
 
-        <div>
-          <FormControlLabel
-            control={
-              <Switch checked={activeJobs} /* onChange={handleChange} */ />
-            }
-            label="Ativar ou desativar execução do job"
-          />
-        </div>
-        <div className="job-execution-time">
-          <span>Tempo de execução do job: </span>
-          <input
-            type="number"
-            min={1}
-            max={15}
-            defaultValue={settingJobExecution.executionInterval}
-          />
-        </div>
+        <form onSubmit={handleChangeSettingsJobExecution}>
+          <div>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={checked}
+                  onChange={(event) => updateStateChecked(event.target.checked)}
+                />
+              }
+              label="Ativar ou desativar execução do job"
+            />
+          </div>
+          <div className="job-execution-time">
+            <span>Tempo de execução do job: </span>
+            <input
+              type="number"
+              min={1}
+              max={15}
+              required
+              value={executionInterval || ""}
+              onChange={(event) => updateStateInterval(event.target.value)}
+            />
+          </div>
 
-        <Button type="submit">Salvar</Button>
+          {loadingSaveSettingsJobExecution ? (
+            <Button type="submit">
+              <CircularProgress color="inherit" size={30} />
+            </Button>
+          ) : (
+            <Button type="submit">Salvar</Button>
+          )}
+        </form>
       </ContentConfigJobExecution>
     </Container>
   );

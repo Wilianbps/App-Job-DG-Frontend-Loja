@@ -1,5 +1,5 @@
 import { JobsProvider } from "../contexts/job/JobContext";
-import { SettingJobExecutionProvider } from "./settingJobExecution/SettingJobExecutionContex";
+import { SettingJobExecutionProvider } from "./settingJobExecution/SettingJobExecutionContext";
 import { SettingProvider } from "./settings/SettingsContext";
 import { ToastProvider } from "./toast/ToastContext";
 

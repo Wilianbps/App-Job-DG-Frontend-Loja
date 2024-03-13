@@ -184,6 +184,8 @@ function SettingProvider({ children }: SettingsProviderProps) {
         formDataLocal,
         formDataRemote,
         configDatabase,
+        statusConnectionDatabaseLocal,
+        statusConnectionDatabaseRemote,
       }}
     >
       {children}

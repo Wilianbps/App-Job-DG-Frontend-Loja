@@ -1,5 +1,7 @@
 export interface SettingsContextType {
   connection: boolean;
+  statusConnectionDatabaseLocal: boolean,
+  statusConnectionDatabaseRemote: boolean,
   formDataLocal: IPropsDatabase;
   formDataRemote: IPropsDatabase;
   configDatabase: (data: IPropsDatabase, database: string) => void;

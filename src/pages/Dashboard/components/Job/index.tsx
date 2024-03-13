@@ -22,7 +22,7 @@ export function Job(job: IJob) {
         <td width={100}>{job.startTime}</td>
         <td width={200} className="table">{job.table}</td>
         <td width={300} className="path">{path}</td>
-        <td width={300}>Registros inseridos: {job.action}</td>
+        <td width={300}>{job.action}</td>
         <td width={250}>
           <div className="contentJobStatus">
             {job.status} <span className="cycleStatus"></span>

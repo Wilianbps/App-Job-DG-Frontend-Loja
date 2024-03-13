@@ -1,9 +1,12 @@
 import styled from "styled-components";
 
+
 export const ContainerFooter = styled.div`
+  width: 100%;
   height: 200px;
   background-color: ${(props) => props.theme["orange-light"]};
   padding: 70px;
+ 
 `;
 
 export const ContentFooter = styled.div`

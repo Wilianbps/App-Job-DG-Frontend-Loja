@@ -11,33 +11,46 @@ export function useJobProcess() {
     setJobs(newJob);
   }
 
-  const updateStatusJob = useCallback(async (status: number, id: string) => {
-    /*     const id = localStorage.getItem("jobId:user")!; */
+  const updateStatusJob = useCallback(
+    async (status: number, recordsLength: number, id: string) => {
+      /*     const id = localStorage.getItem("jobId:user")!; */
 
-    const statusJob = status === 200 ? "processado" : "cancelado";
+      const amountRecords = `Registros inseridos: ${recordsLength}`;
 
-    const response = await apiLoja.put(`jobs/path-remoteToStoreDB/${id}?status=${statusJob}`);
+      const statusJob = status === 200 ? "processado" : "cancelado";
 
-    setJobs((state) => [...state, response.data]);
-    /* 
+      const updateJob = {
+        amountRecords,
+        statusJob,
+      };
+
+      const response = await apiLoja.put(
+        `jobs/path-remoteToStoreDB/${id}`,
+        updateJob
+      );
+
+      setJobs((state) => [...state, response.data]);
+      /* 
     localStorage.removeItem("jobId:user");
     idJobActive.current = ""; */
-  }, []);
+    },
+    []
+  );
 
   const updateStatusOnStage = useCallback(
     async (data: [], idJob: string) => {
-      console.log("entrou aqui", data);
       await apiRetaguarda
         .put("update-Status-On-Stage", data)
         .then((response) => {
           const status = response.status;
+          const recordsLength = data.length;
 
-          updateStatusJob(status, idJob);
+          updateStatusJob(status, recordsLength, idJob);
         })
         .catch((error) => {
           if (error.response) {
             const status = error.response.status;
-            updateStatusJob(status, idJob);
+            updateStatusJob(status, 0, idJob);
           }
         });
     },
@@ -54,7 +67,7 @@ export function useJobProcess() {
         .catch((error) => {
           if (error.response) {
             const status = error.response.status;
-            updateStatusJob(status, idJob);
+            updateStatusJob(status, 0, idJob);
           }
         });
     },
@@ -71,7 +84,7 @@ export function useJobProcess() {
         const users = fetchUsers.data;
         addDataInTableStore(users, idJob);
       } else {
-        updateStatusJob(200, idJob);
+        updateStatusJob(200, 0, idJob);
       }
     },
     [updateStatusJob, addDataInTableStore]

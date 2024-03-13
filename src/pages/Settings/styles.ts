@@ -11,6 +11,7 @@ export const Container = styled.div`
 `;
 
 export const ContentLocalEnvironment = styled.div`
+
   h3 {
     margin-bottom: 2rem;
   }
@@ -57,14 +58,17 @@ export const Button = styled.button`
 `;
 
 export const ContentConfigJobExecution = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  form {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 
-  .job-execution-time {
-    span {
-      font-weight: bold;
-      color: ${props => props.theme.orange};
+    > .job-execution-time {
+      span {
+        font-weight: bold;
+        color: ${(props) => props.theme.orange};
+      }
     }
   }
 `;

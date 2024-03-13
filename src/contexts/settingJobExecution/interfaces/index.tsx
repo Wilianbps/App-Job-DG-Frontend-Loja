@@ -1,5 +1,10 @@
 export interface SettingJobExecutionContextType {
-  settingJobExecution: SettingJobExecutionProps;
+  updateSettingsJobExecution: () => void;
+  updateStateChecked: (checkedSwitch: boolean) => void;
+  updateStateInterval: (interval: string) => void;
+  checked: boolean;
+  executionInterval: string;
+  loadingSaveSettingsJobExecution: boolean;
 }
 
 export interface SettingJobExecutionProviderProps {
@@ -8,5 +13,5 @@ export interface SettingJobExecutionProviderProps {
 
 export interface SettingJobExecutionProps {
   status: number;
-  executionInterval: number;
+  interval: number;
 }

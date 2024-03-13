@@ -23,6 +23,7 @@ import {
 import { getHourFromISODate } from "../../libs/getHourFromISODate";
 import { useJob } from "../../contexts/job/JobContext";
 import { useSettings } from "../../contexts/settings/SettingsContext";
+import { Warning } from "./components/warning";
 
 interface IJob {
   id: string;
@@ -81,6 +82,9 @@ export function Dashboard() {
   return (
     <>
       <Card />
+
+      {!connection && <Warning />}
+
       {connection && (
         <ContainerMain>
           <ContainerSearch>
@@ -122,8 +126,8 @@ export function Dashboard() {
                   <td>status</td>
                 </tr>
               </Thead>
-              {Array.isArray(listJobs) &&
-                listJobs?.map(
+              {Array.isArray(jobs) &&
+                jobs?.map(
                   (job) =>
                     job.status === "em execução" && (
                       <Job
