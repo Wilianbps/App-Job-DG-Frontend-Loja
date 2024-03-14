@@ -18,11 +18,11 @@ export function Job(job: IJob) {
     <Tbody coolorStatus={job.status}>
       <tr>
         <Tag variant={job.path} />
-        <td width={100}>{job.name}</td>
-        <td width={100}>{job.startTime}</td>
+        <td width={200}>{job.name}</td>
+        <td width={50}>{job.startTime}</td>
         <td width={200} className="table">{job.table}</td>
-        <td width={300} className="path">{path}</td>
-        <td width={300}>{job.action}</td>
+        <td width={350} className="path">{path}</td>
+        <td width={100}>{job.action}</td>
         <td width={250}>
           <div className="contentJobStatus">
             {job.status} <span className="cycleStatus"></span>

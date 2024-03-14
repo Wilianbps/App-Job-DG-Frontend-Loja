@@ -51,6 +51,7 @@ function SettingProvider({ children }: SettingsProviderProps) {
               "success",
               response.data.message
             );
+
           }
         })
         .catch((error) => {
@@ -68,8 +69,11 @@ function SettingProvider({ children }: SettingsProviderProps) {
     }
 
     if (database === "remote") {
-      await apiRetaguarda
-        .get("test-connection-database")
+      const baseURL = localStorage.getItem("baseURL:local")!;
+      
+
+      await axios
+        .get(`${baseURL}test-connection-database`)
         .then((response) => {
           if (response.status === 200) {
             localStorage.setItem("connectionDB:remote", "true");
@@ -80,6 +84,7 @@ function SettingProvider({ children }: SettingsProviderProps) {
               "success",
               response.data.message
             );
+
           }
         })
         .catch((error) => {

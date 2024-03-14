@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { apiLoja, apiRetaguarda } from "../../../services/axios";
 import { IJob } from "../interfaces";
+import { generateUniqueJobName } from "./GenerateJobName";
 
 export function useJobProcess() {
   const [jobs, setJobs] = useState<IJob[]>([]);
@@ -15,7 +16,8 @@ export function useJobProcess() {
     async (status: number, recordsLength: number, id: string) => {
       /*     const id = localStorage.getItem("jobId:user")!; */
 
-      const amountRecords = `Registros inseridos: ${recordsLength}`;
+      const amountRecords = recordsLength;
+      console.log("amountRecords", amountRecords);
 
       const statusJob = status === 200 ? "processado" : "cancelado";
 
@@ -92,9 +94,10 @@ export function useJobProcess() {
 
   const startJob = useCallback(
     async (queryTable: { table: string; storeCode: string }) => {
+      const randomJobName = await generateUniqueJobName();
       const newDate = new Date().toISOString();
       const newJob = {
-        name: "006",
+        name: randomJobName,
         startTime: newDate,
         table: queryTable.table,
         path: "1",

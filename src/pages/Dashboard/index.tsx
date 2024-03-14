@@ -122,7 +122,7 @@ export function Dashboard() {
                   <td>Início</td>
                   <td>tabela</td>
                   <td>Caminho</td>
-                  <td>Ação</td>
+                  <td>Qtd Registros</td>
                   <td>status</td>
                 </tr>
               </Thead>
@@ -154,7 +154,7 @@ export function Dashboard() {
                   <td>Início</td>
                   <td>tabela</td>
                   <td>Caminho</td>
-                  <td>Ação</td>
+                  <td>Qtd Registros</td>
                   <td>status</td>
                 </tr>
               </Thead>
