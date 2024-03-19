@@ -58,10 +58,13 @@ function JobsProvider({ children }: JobsProviderProps) {
     const queryPams = {
       status: 1,
     };
+
     const response = await apiRetaguarda.get("all-active-tables", {
       params: queryPams,
     });
-    setAllActiveTablesStore(response.data);
+    if (Array.isArray(response.data)) {
+      setAllActiveTablesStore(response.data);
+    }
   }
 
   async function getActiveTablesStore() {
@@ -73,7 +76,9 @@ function JobsProvider({ children }: JobsProviderProps) {
       params: queryPams,
     });
 
-    setActiveTablesStore(response.data);
+    if (Array.isArray(response.data)) {
+      setActiveTablesStore(response.data);
+    }
   }
 
   useEffect(() => {

@@ -9,7 +9,8 @@ export function Card() {
   const { jobs, arrayAllActiveTables } = useJob();
 
   const numberOfJobsExecuted = jobs.length;
-  const numberOfActiveTables = arrayAllActiveTables.length;
+  const numberOfActiveTables = arrayAllActiveTables.length == 0 ? 0 : arrayAllActiveTables.length;
+
 
   const currentDate = format(new Date(), "d 'de' MMMM 'de' yyyy", {
     locale: ptBR,
