@@ -17,4 +17,5 @@ export interface IPropsDatabase {
   database: string;
   user: string;
   password: string;
+  storeCode?: string
 }

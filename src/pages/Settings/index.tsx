@@ -17,18 +17,19 @@ import { useEffect } from "react";
 import { useSettingsJobExecution } from "../../contexts/settingJobExecution/SettingJobExecutionContext";
 
 const localEnvironmentConfigurationFormSchema = zod.object({
-  server: zod.string().min(8, "Informe o servidor sql"),
-  database: zod.string().min(8, "Informe o banco de dados"),
-  user: zod.string().min(3, "Informe o usuário do banco de dados"),
-  password: zod.string().min(1, "Informe a senha do banco de dados"),
+  server: zod.string().min(1, "Informe o servidor sql"),
+  database: zod.string().min(1, "Informe o banco de dados"),
+  user: zod.string().min(1, "Informe o usuário do banco de dados"),
+  password: zod.string().min(0, "Informe a senha do banco de dados"),
+  storeCode: zod.string().min(1, "Informe o código da loja"),
 });
 
 const remoteEnvironmentConfigurationFormSchema = zod.object({
-  baseURL: zod.string().min(8, "Informe o servidor da retaguarda"),
-  server: zod.string().min(8, "Informe o servidor sql"),
-  database: zod.string().min(8, "Informe o banco de dados"),
-  user: zod.string().min(3, "Informe o usuário do banco de dados"),
-  password: zod.string().min(1, "Informe a senha do banco de dados"),
+  baseURL: zod.string().min(1, "Informe o servidor da retaguarda"),
+  server: zod.string().min(1, "Informe o servidor sql"),
+  database: zod.string().min(1, "Informe o banco de dados"),
+  user: zod.string().min(1, "Informe o usuário do banco de dados"),
+  password: zod.string().min(0, "Informe a senha do banco de dados"),
 });
 
 export type localEnvironmentConfigurationFormProps = zod.infer<
@@ -109,6 +110,8 @@ export function Settings() {
   }
 
   useEffect(() => {
+    const storeCode = localStorage.getItem("storeCode:local")!;
+    setValueLocalEnvironment("storeCode", storeCode);
     setValueLocalEnvironment("server", formDataLocal.server);
     setValueLocalEnvironment("database", formDataLocal.database);
     setValueLocalEnvironment("user", formDataLocal.user);
@@ -160,6 +163,13 @@ export function Settings() {
             className="password"
             {...registerLocalEnvironment("password")}
             error={errorLocalEnvironment.password?.message}
+          />
+          <Input
+            placeholder="Código da Loja"
+            type="text"
+            className="storeCode"
+            {...registerLocalEnvironment("storeCode")}
+            error={errorLocalEnvironment.storeCode?.message}
           />
 
           {loadingTestConnectionLocalEnvironment ? (

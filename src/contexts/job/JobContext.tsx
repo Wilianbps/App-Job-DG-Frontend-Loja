@@ -111,12 +111,13 @@ function JobsProvider({ children }: JobsProviderProps) {
   }, [connection, checked, interval]);
 
   useEffect(() => {
+    const storeCode = localStorage.getItem("storeCode:local")!;
     function cycleToStartJobs() {
       if (isIntervalStartJobs) {
         arrayActiveTablesStore.forEach((item: ITables) => {
           const queryTable = {
             table: item.tableName,
-            storeCode: "000008",
+            storeCode: storeCode,
           };
           startJob(queryTable);
         });

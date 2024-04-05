@@ -105,6 +105,8 @@ function SettingProvider({ children }: SettingsProviderProps) {
   async function configDatabase(data: IPropsDatabase, database: string) {
     if (database === "local") {
       updateLoadingTestConnectionLocalEnvironment(true);
+      const storeCode = data.storeCode;
+      localStorage.setItem("storeCode:local", storeCode!);
       await apiLoja.post("configuracao-conexao-db", data).then((response) => {
         if (response.status === 200) {
           testConnectionDatabase("local");

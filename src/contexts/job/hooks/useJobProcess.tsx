@@ -17,7 +17,6 @@ export function useJobProcess() {
       /*     const id = localStorage.getItem("jobId:user")!; */
 
       const amountRecords = recordsLength;
-      console.log("amountRecords", amountRecords);
 
       const statusJob = status === 200 ? "processado" : "cancelado";
 
