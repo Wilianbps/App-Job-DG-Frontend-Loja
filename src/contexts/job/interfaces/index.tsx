@@ -10,9 +10,9 @@ export interface IJob {
 
 export interface JobsContextType {
   jobs: IJob[];
+  jobsErp:IJob[]
   selectedDate: Date | unknown;
   arrayAllActiveTables: ITables[]
-  updateSetJobs: (newJobs: IJob[]) => void;
   handleSelectDate: (date: Date | unknown) => void;
 }
 

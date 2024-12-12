@@ -7,14 +7,13 @@ function generateRandomString(length: number): string {
   return result;
 }
 
-export async function generateUniqueJobName() {
+export async function generateUniqueJobName(suffix: string) {
   const prefix = 'PP';
   const separator = '_';
   const middle = "DGCS";
   const randomSuffix = generateRandomString(4); // 6 characters for the suffix
-  const randomNumbers = generateRandomString(2); // 2 characters for random numbers
 
-  return `${prefix}${separator}${middle}${randomSuffix}${separator}${randomNumbers}`;
+  return `${prefix}${separator}${middle}${randomSuffix}${separator}${suffix}`;
 }
 
 

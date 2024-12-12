@@ -3,19 +3,15 @@ import { apiLoja, apiRetaguarda } from "../../../services/axios";
 import { IJob } from "../interfaces";
 import { generateUniqueJobName } from "./GenerateJobName";
 
-export function useJobProcess() {
-  const [jobs, setJobs] = useState<IJob[]>([]);
+export function useErpToEntbipJobSync() {
+  const [jobsErp, setJobsErp] = useState<IJob[]>([]);
 
-  /*   const idJobActive = useRef(""); */
-
-  function updateSetJobs(newJob: IJob[]) {
-    setJobs(newJob);
+  function updateSetJobsErp(newJob: IJob[]) {
+    setJobsErp(newJob);
   }
 
   const updateStatusJob = useCallback(
     async (status: number, recordsLength: number, id: string) => {
-      /*     const id = localStorage.getItem("jobId:user")!; */
-
       const amountRecords = recordsLength;
 
       const statusJob = status === 200 ? "processado" : "cancelado";
@@ -30,15 +26,14 @@ export function useJobProcess() {
         updateJob
       );
 
-      setJobs((state) => [...state, response.data]);
-
+      setJobsErp((state) => [...state, response.data]);
     },
     []
   );
 
   const updateStatusOnStage = useCallback(
     async (data: [], idJob: string) => {
-      await apiRetaguarda
+      await apiLoja
         .put("update-Status-On-Stage", data)
         .then((response) => {
           const status = response.status;
@@ -56,10 +51,10 @@ export function useJobProcess() {
     [updateStatusJob]
   );
 
-  const addDataInTableStore = useCallback(
+  const addDataInTableRemote = useCallback(
     async (data: [], idJob: string) => {
-      await apiLoja
-        .post("register-path-remoteToStoreDB", data)
+      await apiRetaguarda
+        .post("register-path-StoreToRemoteDb", data)
         .then(() => {
           updateStatusOnStage(data, idJob);
         })
@@ -75,46 +70,42 @@ export function useJobProcess() {
 
   const searchOnStage = useCallback(
     async (queryTable: { table: string; storeCode: string }, idJob: string) => {
-      const fetchUsers = await apiRetaguarda.get("search-on-stage", {
+      const fetchUsers = await apiLoja.get("search-on-stage", {
         params: { table: queryTable.table, storeCode: queryTable.storeCode },
       });
 
       if (fetchUsers.data.length > 0) {
         const users = fetchUsers.data;
-        addDataInTableStore(users, idJob);
+        addDataInTableRemote(users, idJob);
       } else {
         updateStatusJob(200, 0, idJob);
       }
     },
-    [updateStatusJob, addDataInTableStore]
+    [updateStatusJob, addDataInTableRemote]
   );
 
-  const startJob = useCallback(
+  const startJobToTransferFileFromErptoEntbip = useCallback(
     async (queryTable: { table: string; storeCode: string }) => {
-      const randomJobName = await generateUniqueJobName('RL');
+      const randomJobName = await generateUniqueJobName("LR");
       const newDate = new Date().toISOString();
       const newJob = {
         name: randomJobName,
         startTime: newDate,
         table: queryTable.table,
-        path: "1",
+        path: "2",
         action: "",
         status: "em execução",
       };
 
       const response = await apiLoja.post("jobs/path-remoteToStoreDB", newJob);
-      setJobs((state) => [...state, response.data]);
+      setJobsErp((state) => [...state, response.data]);
 
       const idJob = response.data.id;
-
-      /*  idJobActive.current = response.data.id;
-
-            localStorage.setItem(`jobId:${queryTable.table.toLowerCase()}`, idJobActive.current); */
 
       searchOnStage(queryTable, idJob);
     },
     [searchOnStage]
   );
 
-  return { jobs, startJob, updateSetJobs };
+  return { jobsErp, startJobToTransferFileFromErptoEntbip, updateSetJobsErp };
 }

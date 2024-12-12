@@ -12,6 +12,7 @@ import { useJobProcess } from "./hooks/useJobProcess";
 import { useSettings } from "../settings/SettingsContext";
 import { format } from "date-fns";
 import { useSettingsJobExecution } from "../settingJobExecution/SettingJobExecutionContext";
+import { useErpToEntbipJobSync } from "./hooks/useErpToEntbipJobSync";
 
 interface JobsProviderProps {
   children: ReactNode;
@@ -22,6 +23,8 @@ const JobsContext = createContext({} as JobsContextType);
 function JobsProvider({ children }: JobsProviderProps) {
   const { connection } = useSettings();
   const { jobs, startJob, updateSetJobs } = useJobProcess();
+  const { jobsErp, startJobToTransferFileFromErptoEntbip } =
+    useErpToEntbipJobSync();
   const { checked, executionInterval } = useSettingsJobExecution();
 
   const [selectedDate, setSelectedDate] = useState<Date | unknown>(new Date());
@@ -29,9 +32,13 @@ function JobsProvider({ children }: JobsProviderProps) {
   const [arrayAllActiveTables, setAllActiveTablesStore] = useState<ITables[]>(
     []
   );
-  const [arrayActiveTablesStore, setActiveTablesStore] = useState<ITables[]>(
-    []
-  );
+  const [arrayActiveTablesStore, setArrayActiveTablesStore] = useState<
+    ITables[]
+  >([]);
+
+  const [arrayActiveTablesRemote, setArrayActiveTablesRemote] = useState<
+    ITables[]
+  >([]);
 
   const interval: number = parseInt(executionInterval) * 60;
 
@@ -77,12 +84,27 @@ function JobsProvider({ children }: JobsProviderProps) {
     });
 
     if (Array.isArray(response.data)) {
-      setActiveTablesStore(response.data);
+      setArrayActiveTablesStore(response.data);
+    }
+  }
+
+  async function getActiveTablesRemote() {
+    const queryPams = {
+      status: 1,
+      type: "RETAGUARDA",
+    };
+    const response = await apiLoja.get("active-store-tables", {
+      params: queryPams,
+    });
+
+    if (Array.isArray(response.data)) {
+      setArrayActiveTablesRemote(response.data);
     }
   }
 
   useEffect(() => {
     getActiveTablesStore();
+    getActiveTablesRemote();
     getAllActiveTables();
   }, []);
 
@@ -114,25 +136,40 @@ function JobsProvider({ children }: JobsProviderProps) {
     const storeCode = localStorage.getItem("storeCode:local")!;
     function cycleToStartJobs() {
       if (isIntervalStartJobs) {
-        arrayActiveTablesStore.forEach((item: ITables) => {
+        arrayActiveTablesStore.forEach(async (item: ITables) => {
           const queryTable = {
             table: item.tableName,
             storeCode: storeCode,
           };
-          startJob(queryTable);
+          await startJob(queryTable);
+        });
+
+     arrayActiveTablesRemote.forEach(async (item: ITables) => {
+          const queryTable = {
+            table: item.tableName,
+            storeCode: storeCode,
+          };
+
+          await startJobToTransferFileFromErptoEntbip(queryTable);
         });
 
         setIsIntervalStartJobs(false);
       }
     }
     cycleToStartJobs();
-  }, [isIntervalStartJobs, arrayActiveTablesStore, startJob]);
+  }, [
+    isIntervalStartJobs,
+    arrayActiveTablesStore,
+    arrayActiveTablesRemote,
+    startJob,
+    startJobToTransferFileFromErptoEntbip,
+  ]);
 
   return (
     <JobsContext.Provider
       value={{
         jobs,
-        updateSetJobs,
+        jobsErp,
         arrayAllActiveTables,
         selectedDate,
         handleSelectDate,

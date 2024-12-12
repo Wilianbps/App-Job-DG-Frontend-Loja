@@ -37,12 +37,14 @@ interface IJob {
 
 export function Dashboard() {
   const { connection } = useSettings();
-  const { jobs, selectedDate, handleSelectDate } = useJob();
+  const { jobs, jobsErp, selectedDate, handleSelectDate } = useJob();
 
   const [page, setPage] = useState(1);
   const [filteredJobs, setFilteredJobs] = useState<IJob[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const combinedArrayJobs = [...jobs, ...jobsErp]
 
   const handleChangePage = (_event: ChangeEvent<unknown>, newPage: number) => {
     setPage(newPage);
@@ -61,7 +63,7 @@ export function Dashboard() {
   const handleSearch = () => {
     setLoading(true);
     setTimeout(() => {
-      const filteredResults = jobs.filter((item) => {
+      const filteredResults = combinedArrayJobs.filter((item) => {
         const name = item.name.toLowerCase().includes(search.toLowerCase());
         const table = item.table.toLowerCase().includes(search.toLowerCase());
         const status = item.status.toLowerCase().includes(search.toLowerCase());
