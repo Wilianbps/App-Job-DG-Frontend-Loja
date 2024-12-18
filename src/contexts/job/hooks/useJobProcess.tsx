@@ -6,15 +6,12 @@ import { generateUniqueJobName } from "./GenerateJobName";
 export function useJobProcess() {
   const [jobs, setJobs] = useState<IJob[]>([]);
 
-  /*   const idJobActive = useRef(""); */
-
   function updateSetJobs(newJob: IJob[]) {
     setJobs(newJob);
   }
 
   const updateStatusJob = useCallback(
     async (status: number, recordsLength: number, id: string) => {
-      /*     const id = localStorage.getItem("jobId:user")!; */
 
       const amountRecords = recordsLength;
 
@@ -106,10 +103,6 @@ export function useJobProcess() {
       setJobs((state) => [...state, response.data]);
 
       const idJob = response.data.id;
-
-      /*  idJobActive.current = response.data.id;
-
-            localStorage.setItem(`jobId:${queryTable.table.toLowerCase()}`, idJobActive.current); */
 
       searchOnStage(queryTable, idJob);
     },

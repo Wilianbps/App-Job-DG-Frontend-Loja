@@ -132,7 +132,7 @@ function JobsProvider({ children }: JobsProviderProps) {
     }
   }, [connection, checked, interval]);
 
-  useEffect(() => {
+ /*  useEffect(() => {
     const storeCode = localStorage.getItem("storeCode:local")!;
     function cycleToStartJobs() {
       if (isIntervalStartJobs) {
@@ -163,7 +163,40 @@ function JobsProvider({ children }: JobsProviderProps) {
     arrayActiveTablesRemote,
     startJob,
     startJobToTransferFileFromErptoEntbip,
-  ]);
+  ]); */
+
+
+  useEffect(() => {
+    const storeCode = localStorage.getItem("storeCode:local")!;
+  
+    async function cycleToStartJobs() {
+      if (isIntervalStartJobs) {
+        const startStoreJobs = arrayActiveTablesStore.map((item: ITables) => {
+          const queryTable = {
+            table: item.tableName,
+            storeCode: storeCode,
+          };
+          return startJob(queryTable);
+        });
+  
+        const startRemoteJobs = arrayActiveTablesRemote.map((item: ITables) => {
+          const queryTable = {
+            table: item.tableName,
+            storeCode: storeCode,
+          };
+          return startJobToTransferFileFromErptoEntbip(queryTable);
+        });
+  
+        // Esperar todos os jobs serem processados antes de finalizar
+        await Promise.all([...startStoreJobs, ...startRemoteJobs]);
+  
+        setIsIntervalStartJobs(false);
+      }
+    }
+  
+    cycleToStartJobs();
+  }, [isIntervalStartJobs, arrayActiveTablesStore, arrayActiveTablesRemote, startJob, startJobToTransferFileFromErptoEntbip]);
+  
 
   return (
     <JobsContext.Provider
