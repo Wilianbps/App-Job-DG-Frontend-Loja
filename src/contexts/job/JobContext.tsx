@@ -125,17 +125,19 @@ function JobsProvider({ children }: JobsProviderProps) {
 
         if (elepsedTime == 1) {
           setIsIntervalStartJobs(true);
+          await loadJobsByDateSelected();
         }
       }, 1000);
 
       return () => clearInterval(intervalId);
     }
-  }, [connection, checked, interval]);
+  }, [connection, checked, interval, loadJobsByDateSelected]);
 
- /*  useEffect(() => {
+  /*  useEffect(() => {
     const storeCode = localStorage.getItem("storeCode:local")!;
     function cycleToStartJobs() {
       if (isIntervalStartJobs) {
+      
         arrayActiveTablesStore.forEach(async (item: ITables) => {
           const queryTable = {
             table: item.tableName,
@@ -165,10 +167,9 @@ function JobsProvider({ children }: JobsProviderProps) {
     startJobToTransferFileFromErptoEntbip,
   ]); */
 
-
   useEffect(() => {
     const storeCode = localStorage.getItem("storeCode:local")!;
-  
+
     async function cycleToStartJobs() {
       if (isIntervalStartJobs) {
         const startStoreJobs = arrayActiveTablesStore.map((item: ITables) => {
@@ -178,7 +179,7 @@ function JobsProvider({ children }: JobsProviderProps) {
           };
           return startJob(queryTable);
         });
-  
+
         const startRemoteJobs = arrayActiveTablesRemote.map((item: ITables) => {
           const queryTable = {
             table: item.tableName,
@@ -186,17 +187,22 @@ function JobsProvider({ children }: JobsProviderProps) {
           };
           return startJobToTransferFileFromErptoEntbip(queryTable);
         });
-  
+
         // Esperar todos os jobs serem processados antes de finalizar
         await Promise.all([...startStoreJobs, ...startRemoteJobs]);
-  
+    
         setIsIntervalStartJobs(false);
       }
     }
-  
+
     cycleToStartJobs();
-  }, [isIntervalStartJobs, arrayActiveTablesStore, arrayActiveTablesRemote, startJob, startJobToTransferFileFromErptoEntbip]);
-  
+  }, [
+    isIntervalStartJobs,
+    arrayActiveTablesStore,
+    arrayActiveTablesRemote,
+    startJob,
+    startJobToTransferFileFromErptoEntbip,
+  ]);
 
   return (
     <JobsContext.Provider
