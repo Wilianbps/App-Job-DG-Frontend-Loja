@@ -41,10 +41,8 @@ function SettingJobExecutionProvider({
         status: checked == true ? 1 : 0!,
         interval: parseInt(executionInterval),
       };
-      console.log(settings)
-      const response = await apiLoja.put(`setting-job-execution`, settings);
 
-      console.log("chegou aqui", response.data[0])
+      const response = await apiLoja.put(`setting-job-execution`, settings);
 
       setChecked(response.data[0].status! == 1 ? true : false);
       setExecutionInterval(response.data[0].interval);
