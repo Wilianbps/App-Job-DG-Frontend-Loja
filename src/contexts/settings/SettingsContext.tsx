@@ -51,7 +51,6 @@ function SettingProvider({ children }: SettingsProviderProps) {
               "success",
               response.data.message
             );
-
           }
         })
         .catch((error) => {
@@ -70,7 +69,6 @@ function SettingProvider({ children }: SettingsProviderProps) {
 
     if (database === "remote") {
       const baseURL = localStorage.getItem("baseURL:local")!;
-      
 
       await axios
         .get(`${baseURL}test-connection-database`)
@@ -84,7 +82,6 @@ function SettingProvider({ children }: SettingsProviderProps) {
               "success",
               response.data.message
             );
-
           }
         })
         .catch((error) => {
@@ -107,11 +104,21 @@ function SettingProvider({ children }: SettingsProviderProps) {
       updateLoadingTestConnectionLocalEnvironment(true);
       const storeCode = data.storeCode;
       localStorage.setItem("storeCode:local", storeCode!);
-      await apiLoja.post("configuracao-conexao-db", data).then((response) => {
-        if (response.status === 200) {
-          testConnectionDatabase("local");
-        }
-      });
+      await apiLoja
+        .post("configuracao-conexao-db", data)
+        .then(async (response) => {
+          if (response.status === 200) {
+            await testConnectionDatabase("local");
+          }
+        })
+        .catch((error) => {
+          updateLoadingTestConnectionLocalEnvironment(false);
+          updateToastTestConnectionRemoteEnvironment(
+            true,
+            "error",
+            error.response.data.message
+          );
+        });
     }
 
     if (database === "remote") {
