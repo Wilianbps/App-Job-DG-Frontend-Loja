@@ -133,11 +133,10 @@ function JobsProvider({ children }: JobsProviderProps) {
     }
   }, [connection, checked, interval, loadJobsByDateSelected]);
 
-  /*  useEffect(() => {
+  useEffect(() => {
     const storeCode = localStorage.getItem("storeCode:local")!;
     function cycleToStartJobs() {
       if (isIntervalStartJobs) {
-      
         arrayActiveTablesStore.forEach(async (item: ITables) => {
           const queryTable = {
             table: item.tableName,
@@ -146,7 +145,7 @@ function JobsProvider({ children }: JobsProviderProps) {
           await startJob(queryTable);
         });
 
-     arrayActiveTablesRemote.forEach(async (item: ITables) => {
+        arrayActiveTablesRemote.forEach(async (item: ITables) => {
           const queryTable = {
             table: item.tableName,
             storeCode: storeCode,
@@ -158,43 +157,6 @@ function JobsProvider({ children }: JobsProviderProps) {
         setIsIntervalStartJobs(false);
       }
     }
-    cycleToStartJobs();
-  }, [
-    isIntervalStartJobs,
-    arrayActiveTablesStore,
-    arrayActiveTablesRemote,
-    startJob,
-    startJobToTransferFileFromErptoEntbip,
-  ]); */
-
-  useEffect(() => {
-    const storeCode = localStorage.getItem("storeCode:local")!;
-
-    async function cycleToStartJobs() {
-      if (isIntervalStartJobs) {
-        const startStoreJobs = arrayActiveTablesStore.map((item: ITables) => {
-          const queryTable = {
-            table: item.tableName,
-            storeCode: storeCode,
-          };
-          return startJob(queryTable);
-        });
-
-        const startRemoteJobs = arrayActiveTablesRemote.map((item: ITables) => {
-          const queryTable = {
-            table: item.tableName,
-            storeCode: storeCode,
-          };
-          return startJobToTransferFileFromErptoEntbip(queryTable);
-        });
-
-        // Esperar todos os jobs serem processados antes de finalizar
-        await Promise.all([...startStoreJobs, ...startRemoteJobs]);
-    
-        setIsIntervalStartJobs(false);
-      }
-    }
-
     cycleToStartJobs();
   }, [
     isIntervalStartJobs,

@@ -33,22 +33,32 @@ function SettingJobExecutionProvider({
   }
 
   async function updateSettingsJobExecution() {
-
-    setLoadingSaveSettingsJobExecution(true);
-    localStorage.removeItem("elapsedTime:jobs");
+    setLoadingSaveSettingsJobExecution(true); // Ativa o loading
+    localStorage.removeItem("elapsedTime:jobs"); // Remove o item do localStorage
+  
     setTimeout(async () => {
-      const settings = {
-        status: checked == true ? 1 : 0!,
-        interval: parseInt(executionInterval),
-      };
+      try {
+        const settings = {
+          status: checked === true ? 1 : 0, // Ajusta o status com base no `checked`
+          interval: parseInt(executionInterval), // Converte o intervalo para número
+        };
+  
+        // Faz a requisição para o backend
+        const response = await apiLoja.put(`setting-job-execution`, settings);
+  
+        // Atualiza os estados com os dados retornados
+        setChecked(response.data[0].status === 1);
+        setExecutionInterval(response.data[0].interval);
+      } catch (error) {
+        console.error("Erro ao atualizar configurações do job:", error);
 
-      const response = await apiLoja.put(`setting-job-execution`, settings);
-
-      setChecked(response.data[0].status! == 1 ? true : false);
-      setExecutionInterval(response.data[0].interval);
-      setLoadingSaveSettingsJobExecution(false);
-    }, 1000);
+      } finally {
+        // Certifique-se de desativar o loading, independentemente do sucesso ou erro
+        setLoadingSaveSettingsJobExecution(false);
+      }
+    }, 1000); // Adiciona o atraso de 1 segundo
   }
+  
 
   useEffect(() => {
     getSettingJobExecution();
