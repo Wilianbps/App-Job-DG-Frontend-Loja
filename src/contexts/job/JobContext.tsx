@@ -9,10 +9,10 @@ import {
 import { apiLoja, apiRetaguarda } from "../../services/axios";
 import { ITables, JobsContextType } from "./interfaces";
 import { useJobProcess } from "./hooks/useJobProcess";
-import { useSettings } from "../settings/SettingsContext";
 import { format } from "date-fns";
-import { useSettingsJobExecution } from "../settingJobExecution/SettingJobExecutionContext";
 import { useErpToEntbipJobSync } from "./hooks/useErpToEntbipJobSync";
+import { useSettings } from "../settings/SettingsContext";
+import { useSettingsJobExecution } from "../settingJobExecution/SettingJobExecutionContext";
 
 interface JobsProviderProps {
   children: ReactNode;
@@ -21,14 +21,14 @@ interface JobsProviderProps {
 const JobsContext = createContext({} as JobsContextType);
 
 function JobsProvider({ children }: JobsProviderProps) {
-  const { connection } = useSettings();
   const { jobs, startJob, updateSetJobs } = useJobProcess();
   const { jobsErp, startJobToTransferFileFromErptoEntbip } =
     useErpToEntbipJobSync();
-  const { checked, executionInterval } = useSettingsJobExecution();
+    const { checked } = useSettingsJobExecution();
+  const { connection } = useSettings();
 
   const [selectedDate, setSelectedDate] = useState<Date | unknown>(new Date());
-  const [isIntervalStartJobs, setIsIntervalStartJobs] = useState(false);
+
   const [arrayAllActiveTables, setAllActiveTablesStore] = useState<ITables[]>(
     []
   );
@@ -39,8 +39,6 @@ function JobsProvider({ children }: JobsProviderProps) {
   const [arrayActiveTablesRemote, setArrayActiveTablesRemote] = useState<
     ITables[]
   >([]);
-
-  const interval: number = parseInt(executionInterval) * 60;
 
   function handleSelectDate(date: Date | unknown) {
     setSelectedDate(date);
@@ -108,63 +106,75 @@ function JobsProvider({ children }: JobsProviderProps) {
     getAllActiveTables();
   }, []);
 
-  useEffect(() => {
-    if (connection && checked) {
-      const intervalId = setInterval(async () => {
-        const elepsedTime = JSON.parse(
-          localStorage.getItem("elapsedTime:jobs")!
-        );
-        if (elepsedTime >= 2) {
-          localStorage.setItem(
-            "elapsedTime:jobs",
-            (elepsedTime - 1).toString()
-          );
-        } else {
-          localStorage.setItem("elapsedTime:jobs", interval.toString());
-        }
-
-        if (elepsedTime == 1) {
-          setIsIntervalStartJobs(true);
-          await loadJobsByDateSelected();
-        }
-      }, 1000);
-
-      return () => clearInterval(intervalId);
-    }
-  }, [connection, checked, interval, loadJobsByDateSelected]);
-
-  useEffect(() => {
-    const storeCode = localStorage.getItem("storeCode:local")!;
-    function cycleToStartJobs() {
-      if (isIntervalStartJobs) {
-        arrayActiveTablesStore.forEach(async (item: ITables) => {
-          const queryTable = {
-            table: item.tableName,
-            storeCode: storeCode,
-          };
-          await startJob(queryTable);
-        });
-
-        arrayActiveTablesRemote.forEach(async (item: ITables) => {
-          const queryTable = {
-            table: item.tableName,
-            storeCode: storeCode,
-          };
-
-          await startJobToTransferFileFromErptoEntbip(queryTable);
-        });
-
-        setIsIntervalStartJobs(false);
+    const handleJobExecution = useCallback(async () => {
+      const storeCode = localStorage.getItem("storeCode:local")!;
+    
+      // Executa um job de cada vez para tabelas locais
+      for (const item of arrayActiveTablesStore) {
+        const queryTable = {
+          table: item.tableName,
+          storeCode: storeCode,
+        };
+        console.log("Iniciando job para tabela local:", queryTable);
+    
+        // Aqui o código aguarda o início do job antes de passar para o próximo
+        await startJob(queryTable);
       }
-    }
-    cycleToStartJobs();
-  }, [
-    isIntervalStartJobs,
-    arrayActiveTablesStore,
-    arrayActiveTablesRemote,
-    startJob,
-    startJobToTransferFileFromErptoEntbip,
-  ]);
+    
+      // Executa um job de cada vez para tabelas remotas
+      for (const item of arrayActiveTablesRemote) {
+        const queryTable = {
+          table: item.tableName,
+          storeCode: storeCode,
+        };
+        console.log("Iniciando job para tabela remota:", queryTable);
+    
+        // Aguarda o início do job antes de passar para o próximo
+        await startJobToTransferFileFromErptoEntbip(queryTable);
+      }
+    }, [arrayActiveTablesStore, arrayActiveTablesRemote, startJob, startJobToTransferFileFromErptoEntbip]);
+
+  useEffect(() => {
+    // Conectar ao WebSocket do servidor na porta 3335
+    const socket = new WebSocket("ws://localhost:3004");
+
+    // Quando a conexão for aberta
+    socket.onopen = () => {
+      console.log("Conectado ao servidor WebSocket");
+    };
+
+    // Quando uma mensagem for recebida
+    socket.onmessage = (event) => {
+      console.log("Mensagem recebida:", event.data);
+
+      // Verificar se a mensagem é "ExecutarJob"
+      if (event.data === "ExecutarJobs") {
+        if (connection && checked) {
+          handleJobExecution();
+          console.log("Comando para executar os jobs recebido");
+        }
+      
+        // Aqui você pode chamar a função que executa os jobs
+      }
+    };
+
+    // Quando ocorrer um erro
+    socket.onerror = (error) => {
+      console.log("Erro no WebSocket:", error);
+    };
+
+    // Quando a conexão for fechada
+    socket.onclose = () => {
+      console.log("Conexão WebSocket fechada");
+    };
+
+    // Retornar a função de limpeza para fechar o WebSocket quando o componente for desmontado
+    return () => {
+      socket.close();
+    };
+  }, [handleJobExecution]);
+
+  // Função para iniciar os jobs
 
   return (
     <JobsContext.Provider

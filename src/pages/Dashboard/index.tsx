@@ -3,6 +3,7 @@ import { Card } from "../../components/Card";
 import { DatePickerMUI } from "../../components/DatePickerMUI";
 import { InputMUI } from "../../components/InputMUI";
 import { Job } from "./components/Job";
+import { v4 as uuidv4 } from "uuid"; 
 
 import {
   ContainerMain,
@@ -133,7 +134,7 @@ export function Dashboard() {
                   (job) =>
                     job.status === "em execução" && (
                       <Job
-                        key={job.id}
+                        key={uuidv4()}
                         name={job.name}
                         startTime={getHourFromISODate(job.startTime)}
                         table={job.table}
@@ -165,7 +166,7 @@ export function Dashboard() {
                   (job) =>
                     job.status !== "em execução" && (
                       <Job
-                        key={job.id}
+                        key={uuidv4()}
                         name={job.name}
                         startTime={getHourFromISODate(job.startTime)}
                         table={job.table}
