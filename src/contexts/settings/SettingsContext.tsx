@@ -104,6 +104,7 @@ function SettingProvider({ children }: SettingsProviderProps) {
       updateLoadingTestConnectionLocalEnvironment(true);
       const storeCode = data.storeCode;
       localStorage.setItem("storeCode:local", storeCode!);
+      console.log("data", data)
       await apiLoja
         .post("configuracao-conexao-db", data)
         .then(async (response) => {

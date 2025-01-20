@@ -149,6 +149,8 @@ function JobsProvider({ children }: JobsProviderProps) {
 
       // Verificar se a mensagem é "ExecutarJob"
       if (event.data === "ExecutarJobs") {
+        console.log("connection", connection)
+        console.log("checked", checked)
         if (connection && checked) {
           handleJobExecution();
           console.log("Comando para executar os jobs recebido");
