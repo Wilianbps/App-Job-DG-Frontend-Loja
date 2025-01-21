@@ -24,7 +24,7 @@ function JobsProvider({ children }: JobsProviderProps) {
   const { jobs, startJob, updateSetJobs } = useJobProcess();
   const { jobsErp, startJobToTransferFileFromErptoEntbip } =
     useErpToEntbipJobSync();
-    const { checked } = useSettingsJobExecution();
+  const { checkJobsInExecution } = useSettingsJobExecution();
   const { connection } = useSettings();
 
   const [selectedDate, setSelectedDate] = useState<Date | unknown>(new Date());
@@ -106,33 +106,45 @@ function JobsProvider({ children }: JobsProviderProps) {
     getAllActiveTables();
   }, []);
 
-    const handleJobExecution = useCallback(async () => {
-      const storeCode = localStorage.getItem("storeCode:local")!;
-    
-      // Executa um job de cada vez para tabelas locais
-      for (const item of arrayActiveTablesStore) {
-        const queryTable = {
-          table: item.tableName,
-          storeCode: storeCode,
-        };
-        console.log("Iniciando job para tabela local:", queryTable);
-    
-        // Aqui o código aguarda o início do job antes de passar para o próximo
-        await startJob(queryTable);
-      }
-    
-      // Executa um job de cada vez para tabelas remotas
-      for (const item of arrayActiveTablesRemote) {
-        const queryTable = {
-          table: item.tableName,
-          storeCode: storeCode,
-        };
-        console.log("Iniciando job para tabela remota:", queryTable);
-    
-        // Aguarda o início do job antes de passar para o próximo
-        await startJobToTransferFileFromErptoEntbip(queryTable);
-      }
-    }, [arrayActiveTablesStore, arrayActiveTablesRemote, startJob, startJobToTransferFileFromErptoEntbip]);
+  const checkJobs = useCallback(async () => {
+  await checkJobsInExecution();
+  }, [checkJobsInExecution]);
+
+  const handleJobExecution = useCallback(async () => {
+    const storeCode = localStorage.getItem("storeCode:local")!;
+
+    // Executa um job de cada vez para tabelas locais
+    for (const item of arrayActiveTablesStore) {
+      const queryTable = {
+        table: item.tableName,
+        storeCode: storeCode,
+      };
+      console.log("Iniciando job para tabela local:", queryTable);
+
+      // Aqui o código aguarda o início do job antes de passar para o próximo
+      await startJob(queryTable);
+    }
+
+    // Executa um job de cada vez para tabelas remotas
+    for (const item of arrayActiveTablesRemote) {
+      const queryTable = {
+        table: item.tableName,
+        storeCode: storeCode,
+      };
+      console.log("Iniciando job para tabela remota:", queryTable);
+
+      // Aguarda o início do job antes de passar para o próximo
+      await startJobToTransferFileFromErptoEntbip(queryTable);
+    }
+
+   await checkJobs();
+  }, [
+    arrayActiveTablesStore,
+    arrayActiveTablesRemote,
+    startJob,
+    startJobToTransferFileFromErptoEntbip,
+    checkJobs,
+  ]);
 
   useEffect(() => {
     // Conectar ao WebSocket do servidor na porta 3335
@@ -149,13 +161,11 @@ function JobsProvider({ children }: JobsProviderProps) {
 
       // Verificar se a mensagem é "ExecutarJob"
       if (event.data === "ExecutarJobs") {
-        console.log("connection", connection)
-        console.log("checked", checked)
-        if (connection && checked) {
+        if (connection) {
           handleJobExecution();
           console.log("Comando para executar os jobs recebido");
         }
-      
+
         // Aqui você pode chamar a função que executa os jobs
       }
     };

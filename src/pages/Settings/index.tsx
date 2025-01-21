@@ -300,8 +300,8 @@ export function Settings() {
             <span>Tempo de execução do job: </span>
             <input
               type="number"
-              min={1}
-              max={15}
+              min={3}
+              max={180}
               required
               value={executionInterval || ""}
               onChange={(event) => updateStateInterval(event.target.value)}

@@ -1,12 +1,10 @@
 import styled from "styled-components";
 
-
 export const ContainerFooter = styled.div`
   width: 100%;
   height: 200px;
   background-color: ${(props) => props.theme["orange-light"]};
   padding: 70px;
- 
 `;
 
 export const ContentFooter = styled.div`
@@ -16,6 +14,7 @@ export const ContentFooter = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
+
 
   span {
     font-size: 0.875rem;

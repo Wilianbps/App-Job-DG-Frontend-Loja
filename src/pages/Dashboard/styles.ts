@@ -7,6 +7,7 @@ export const ContainerHome = styled.div`
 export const ContainerMain = styled.div`
   margin-top: -70px;
   margin-bottom: 2.5rem;
+  min-height: 42vh;
 `;
 
 export const ContainerSearch = styled.div`
